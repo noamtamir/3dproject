@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-gray-950 text-gray-100;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.gradient-bg {
+  background: radial-gradient(circle at top center, rgba(37, 99, 235, 0.1) 0%, rgba(0, 0, 0, 0) 50%);
+}
