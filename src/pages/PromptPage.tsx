@@ -71,6 +71,10 @@ export default function PromptPage() {
     }
   };
 
+  const handleLoadLocalModel = () => {
+    setModelUrl('/model.glb');
+  };
+
   return (
     <div className="pt-20 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -91,6 +95,12 @@ export default function PromptPage() {
               >
                 <Link className="w-4 h-4" />
                 <span>Load URL</span>
+              </button>
+              <button
+                onClick={handleLoadLocalModel}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center space-x-2"
+              >
+                <span>Load Local Model</span>
               </button>
             </form>
           </div>

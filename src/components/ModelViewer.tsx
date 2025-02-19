@@ -177,12 +177,15 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
         }}
       >
         <color attach="background" args={['#1a1a1a']} />
-        <ambientLight intensity={0.5} />
-        <spotLight 
-          position={[10, 10, 10]} 
-          angle={0.15} 
-          penumbra={1} 
+        <ambientLight intensity={0.8} />
+        <directionalLight 
+          position={[5, 5, 5]} 
           intensity={1} 
+          castShadow 
+        />
+        <directionalLight 
+          position={[-5, -5, -5]} 
+          intensity={0.5} 
           castShadow 
         />
         <OrbitControls 

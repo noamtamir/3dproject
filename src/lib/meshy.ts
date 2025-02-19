@@ -1,5 +1,3 @@
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-
 interface MeshyResponse {
   result: string;
   status?: 'PENDING' | 'PROCESSING' | 'SUCCEEDED' | 'FAILED';
