@@ -81,13 +81,13 @@ export class MeshyClient {
         previewTask = await statusResponse.json();
         
         // Update progress
-        if (this.progressCallback && previewTask.progress !== undefined) {
+        if (this.progressCallback && previewTask?.progress !== undefined) {
           this.progressCallback(previewTask.progress);
         }
 
-        if (previewTask.status === 'SUCCEEDED' && previewTask.model_urls?.glb) {
+        if (previewTask?.status === 'SUCCEEDED' && previewTask.model_urls?.glb) {
           return previewTask.model_urls.glb;
-        } else if (previewTask.status === 'FAILED') {
+        } else if (previewTask?.status === 'FAILED') {
           throw new Error(previewTask.error || 'Preview generation failed');
         }
 

@@ -1,0 +1,6075 @@
+{
+  "info": {
+    "title": "Craftcloud",
+    "version": "v4",
+    "description": "Craftcloud API documentation"
+  },
+  "produces": [
+    "application/json"
+  ],
+  "definitions": {
+    "additionalCostRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendorId",
+        "description",
+        "net"
+      ],
+      "properties": {
+        "vendorId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "net": {
+          "type": "number",
+          "minimum": 0,
+          "example": 10.85
+        }
+      }
+    },
+    "additionalCostResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendorId",
+        "description",
+        "net",
+        "id",
+        "currency",
+        "status",
+        "created",
+        "amounts"
+      ],
+      "properties": {
+        "vendorId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+$"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "net": {
+          "type": "number",
+          "minimum": 0,
+          "example": 10.85
+        },
+        "id": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD",
+            "EUR",
+            "GBP",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "created": {
+          "type": "number",
+          "description": "UNIX timestamp of a date",
+          "example": 1658972807453
+        },
+        "status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "paid"
+          ],
+          "properties": {
+            "paid": {
+              "type": "boolean"
+            }
+          }
+        },
+        "amounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "netPrice",
+            "vatPrice",
+            "grossPrice",
+            "vatPercentage"
+          ],
+          "properties": {
+            "netPrice": {
+              "type": "number",
+              "minimum": 0,
+              "example": 10.85
+            },
+            "vatPrice": {
+              "type": "number",
+              "minimum": 0,
+              "example": 10.85
+            },
+            "grossPrice": {
+              "type": "number",
+              "minimum": 0,
+              "example": 10.85
+            },
+            "vatPercentage": {
+              "type": "number",
+              "minimum": 0,
+              "example": 10.85
+            }
+          }
+        }
+      }
+    },
+    "capturePayPalPaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paymentId",
+        "paypalOrderId"
+      ],
+      "properties": {
+        "paymentId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "paypalOrderId": {
+          "type": "string",
+          "description": "The PayPal order id"
+        }
+      }
+    },
+    "cart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quotes",
+        "shippingIds",
+        "currency"
+      ],
+      "properties": {
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "economy",
+                    "expedited",
+                    "infill_40",
+                    "infill_60",
+                    "infill_80",
+                    "infill_95",
+                    "infill_100"
+                  ]
+                },
+                "description": "List of option types to apply to the chosen quote"
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            }
+          },
+          "minItems": 1
+        },
+        "shippingIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+            "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+          },
+          "minItems": 1
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD",
+            "EUR",
+            "GBP",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "customerReference": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "voucherCode": {
+          "type": "string"
+        }
+      }
+    },
+    "cartResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cartId",
+        "countryCode",
+        "currency",
+        "estDeliveryTime",
+        "expiresAt",
+        "models",
+        "minimumProductionPrice",
+        "quotes",
+        "shippings",
+        "items",
+        "amounts"
+      ],
+      "properties": {
+        "cartId": {
+          "type": "string"
+        },
+        "shippings": {
+          "type": "array",
+          "items": {
+            "title": "Shipping",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "shippingId",
+              "vendorId",
+              "name",
+              "deliveryTime",
+              "price",
+              "currency",
+              "type"
+            ],
+            "properties": {
+              "shippingId": {
+                "type": "string",
+                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "deliveryTime": {
+                "type": "string",
+                "pattern": "^[0-9]{1,2}(-[0-9]{1,2})?$"
+              },
+              "price": {
+                "type": "number",
+                "description": "The net price"
+              },
+              "priceInclVat": {
+                "type": "number",
+                "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "CAD",
+                  "AUD",
+                  "CHF"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "express"
+                ]
+              }
+            },
+            "example": {
+              "shippingId": "dcf5a4d5-f639-4d0a-9d2c-829b7ec9f0fc",
+              "name": "UPS Ground",
+              "deliveryTime": "3-5",
+              "price": 15.9,
+              "priceInclVat": 18.9,
+              "type": "standard",
+              "vendorId": "imaterialise",
+              "currency": "USD"
+            }
+          }
+        },
+        "quotes": {
+          "type": "array",
+          "items": {
+            "title": "Quote",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "quoteId",
+              "vendorId",
+              "modelId",
+              "materialConfigId",
+              "price",
+              "quantity",
+              "currency",
+              "isPrintable",
+              "productionTimeFast",
+              "productionTimeSlow",
+              "scale"
+            ],
+            "properties": {
+              "quoteId": {
+                "type": "string"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              },
+              "modelId": {
+                "type": "string"
+              },
+              "materialConfigId": {
+                "type": "string"
+              },
+              "printingMethodId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "price": {
+                "type": "number",
+                "description": "The net price"
+              },
+              "priceInclVat": {
+                "type": "number",
+                "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+              },
+              "discount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "CAD",
+                  "AUD",
+                  "CHF"
+                ]
+              },
+              "isPrintable": {
+                "type": "boolean"
+              },
+              "productionTimeFast": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "productionTimeSlow": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "scale": {
+                "type": "number"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "price",
+                    "priceInclVat",
+                    "productionTimeFast",
+                    "productionTimeSlow"
+                  ],
+                  "properties": {
+                    "types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "economy",
+                          "expedited",
+                          "infill_40",
+                          "infill_60",
+                          "infill_80",
+                          "infill_95",
+                          "infill_100"
+                        ]
+                      },
+                      "description": "List of applied option types"
+                    },
+                    "price": {
+                      "type": "number",
+                      "description": "The net price"
+                    },
+                    "priceInclVat": {
+                      "type": "number",
+                      "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+                    },
+                    "productionTimeFast": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "productionTimeSlow": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "quoteId": "bf2b604ae33685f698f2d603d9d78761546b87ee62874fc1e380ba5dea1a4848",
+              "vendorId": "imaterialise",
+              "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+              "materialConfigId": "a97a2a21-0e71-51d1-b642-93b168660053",
+              "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+              "isPrintable": true,
+              "quantity": 1,
+              "productionTimeFast": 9,
+              "productionTimeSlow": 10,
+              "scale": 1,
+              "options": [
+                {
+                  "types": [
+                    "expedited"
+                  ],
+                  "productionTimeFast": 6,
+                  "productionTimeSlow": 7,
+                  "price": 93.65,
+                  "priceInclVat": 111.44
+                }
+              ],
+              "currency": "USD",
+              "price": 72.03,
+              "priceInclVat": 85.72,
+              "discount": 0
+            }
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "title": "Model",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "modelId",
+              "fileName",
+              "fileUnit",
+              "area",
+              "volume",
+              "dimensions",
+              "thumbnailUrl",
+              "created"
+            ],
+            "properties": {
+              "modelId": {
+                "type": "string"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "fileUnit": {
+                "type": "string",
+                "enum": [
+                  "mm",
+                  "cm",
+                  "in"
+                ]
+              },
+              "area": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "volume": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "dimensions": {
+                "title": "Dimensions",
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "properties": {
+                  "x": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "y": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "z": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "thumbnailUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "sceneId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "created": {
+                "type": "number",
+                "description": "UNIX timestamp of a date",
+                "example": 1658972807453
+              },
+              "deleted": {
+                "type": "boolean"
+              }
+            },
+            "example": {
+              "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+              "fileName": "testmodel.stl",
+              "fileUnit": "mm",
+              "area": 6919.494140625,
+              "volume": 36753.34375,
+              "dimensions": {
+                "x": 69.88224792480469,
+                "y": 34.520084381103516,
+                "z": 34.52690124511719
+              },
+              "thumbnailUrl": "some-url",
+              "sceneId": "some-scene-id",
+              "created": 1610110143327,
+              "deleted": false
+            }
+          }
+        },
+        "voucher": {
+          "title": "Discount",
+          "type": "object",
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "discount": {
+              "type": "number",
+              "description": "Discount based on sub-total (total before VAT), if the voucher is valid"
+            },
+            "error": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Response msg from the Voucherify, if the voucher is invalid"
+            }
+          },
+          "example": {
+            "discount": 10,
+            "code": "FREE",
+            "error": ""
+          }
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD",
+            "EUR",
+            "GBP",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "The ISO 3166-1 alpha-2 country code"
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "customerReference": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "estDeliveryTime": {
+          "properties": {
+            "vendorId": {
+              "type": "string",
+              "pattern": "^[0-9]{1,2}(-[0-9]{1,2})?$"
+            }
+          }
+        },
+        "minimumProductionPrice": {
+          "properties": {
+            "vendorId": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "price",
+                "priceInclVat",
+                "currency",
+                "productionFee"
+              ],
+              "properties": {
+                "price": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "priceInclVat": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                },
+                "productionFee": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Difference between the vendor's net minimum production price and the net total of all the quotes for that vendor. The value will be zero if the minimum production price is smaller than the sum of quote prices."
+                }
+              }
+            }
+          }
+        },
+        "expiresAt": {
+          "type": "number",
+          "description": "UNIX timestamp of a date",
+          "example": 1658972807453
+        },
+        "amounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "totalByVendor"
+          ],
+          "properties": {
+            "total": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "totalNetPrice",
+                "totalGrossPrice",
+                "discount",
+                "vatPrice",
+                "vatPercentage",
+                "undiscountedNetProductionPrice",
+                "undiscountedNetShippingPrice",
+                "currency"
+              ],
+              "properties": {
+                "totalNetPrice": {
+                  "type": "number",
+                  "description": "Total price of items + shipping with discount applied (excl. VAT)"
+                },
+                "totalGrossPrice": {
+                  "type": "number",
+                  "description": "Total gross price of production + shipping with discount applied (incl. VAT)"
+                },
+                "discount": {
+                  "type": "number",
+                  "description": "Total discount excl. VAT"
+                },
+                "vatPrice": {
+                  "type": "number",
+                  "description": "Total VAT cost (items + shipping)"
+                },
+                "vatPercentage": {
+                  "type": "number",
+                  "description": "The applied VAT percentage"
+                },
+                "undiscountedNetProductionPrice": {
+                  "type": "number",
+                  "description": "Total net production price without discount applied (excl. VAT)"
+                },
+                "undiscountedNetShippingPrice": {
+                  "type": "number",
+                  "description": "Total net shipping price without discount applied (excl. VAT)"
+                },
+                "undiscountedNetAdditionalCostsPrice": {
+                  "type": "number",
+                  "description": "Total net additional costs price without discount applied (excl. VAT)"
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                }
+              },
+              "example": {
+                "totalNetPrice": 100,
+                "totalGrossPrice": 120,
+                "discount": 0,
+                "vatPrice": 20,
+                "vatPercentage": 20,
+                "undiscountedNetProductionPrice": 80,
+                "undiscountedNetShippingPrice": 20,
+                "undiscountedNetAdditionalCostsPrice": 0,
+                "currency": "EUR"
+              }
+            },
+            "totalByVendor": {
+              "properties": {
+                "vendorId": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "totalNetPrice",
+                    "totalGrossPrice",
+                    "discount",
+                    "vatPrice",
+                    "vatPercentage",
+                    "undiscountedNetProductionPrice",
+                    "undiscountedNetShippingPrice",
+                    "currency"
+                  ],
+                  "properties": {
+                    "totalNetPrice": {
+                      "type": "number",
+                      "description": "Total price of items + shipping with discount applied (excl. VAT)"
+                    },
+                    "totalGrossPrice": {
+                      "type": "number",
+                      "description": "Total gross price of production + shipping with discount applied (incl. VAT)"
+                    },
+                    "discount": {
+                      "type": "number",
+                      "description": "Total discount excl. VAT"
+                    },
+                    "vatPrice": {
+                      "type": "number",
+                      "description": "Total VAT cost (items + shipping)"
+                    },
+                    "vatPercentage": {
+                      "type": "number",
+                      "description": "The applied VAT percentage"
+                    },
+                    "undiscountedNetProductionPrice": {
+                      "type": "number",
+                      "description": "Total net production price without discount applied (excl. VAT)"
+                    },
+                    "undiscountedNetShippingPrice": {
+                      "type": "number",
+                      "description": "Total net shipping price without discount applied (excl. VAT)"
+                    },
+                    "undiscountedNetAdditionalCostsPrice": {
+                      "type": "number",
+                      "description": "Total net additional costs price without discount applied (excl. VAT)"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "USD",
+                        "EUR",
+                        "GBP",
+                        "CAD",
+                        "AUD",
+                        "CHF"
+                      ]
+                    }
+                  },
+                  "example": {
+                    "totalNetPrice": 100,
+                    "totalGrossPrice": 120,
+                    "discount": 0,
+                    "vatPrice": 20,
+                    "vatPercentage": 20,
+                    "undiscountedNetProductionPrice": 80,
+                    "undiscountedNetShippingPrice": 20,
+                    "undiscountedNetAdditionalCostsPrice": 0,
+                    "currency": "EUR"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "quoteId"
+            ],
+            "properties": {
+              "quoteId": {
+                "type": "string"
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "economy",
+                    "expedited",
+                    "infill_40",
+                    "infill_60",
+                    "infill_80",
+                    "infill_95",
+                    "infill_100"
+                  ]
+                }
+              },
+              "note": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            }
+          }
+        }
+      }
+    },
+    "configuration": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "title": "Item",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "modelId",
+              "fileName",
+              "fileUnit",
+              "area",
+              "volume",
+              "dimensions",
+              "thumbnailUrl",
+              "created",
+              "quantity",
+              "scale"
+            ],
+            "properties": {
+              "modelId": {
+                "type": "string"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "fileUnit": {
+                "type": "string",
+                "enum": [
+                  "mm",
+                  "cm",
+                  "in"
+                ]
+              },
+              "area": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "volume": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "dimensions": {
+                "title": "Dimensions",
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "properties": {
+                  "x": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "y": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "z": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "thumbnailUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "sceneId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "created": {
+                "type": "number",
+                "description": "UNIX timestamp of a date",
+                "example": 1658972807453
+              },
+              "deleted": {
+                "type": "boolean"
+              },
+              "quantity": {
+                "type": "number"
+              },
+              "scale": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
+      "example": {
+        "items": [
+          {
+            "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+            "fileName": "testmodel.stl",
+            "fileUnit": "mm",
+            "area": 6919.494140625,
+            "volume": 36753.34375,
+            "dimensions": {
+              "x": 69.88224792480469,
+              "y": 34.520084381103516,
+              "z": 34.52690124511719
+            },
+            "thumbnailUrl": "some-url",
+            "sceneId": "some-scene-id",
+            "created": 1610110143327,
+            "deleted": false,
+            "quantity": 42,
+            "scale": 1
+          }
+        ]
+      }
+    },
+    "country": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "name",
+          "region",
+          "blacklisted",
+          "defaultCurrency"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z]{2}$",
+            "description": "The ISO 3166-1 alpha-2 country code"
+          },
+          "name": {
+            "type": "string"
+          },
+          "region": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "Africa",
+              "Antarctica",
+              "Asia",
+              "Europe",
+              "North America",
+              "Oceania",
+              "South America",
+              null
+            ]
+          },
+          "blacklisted": {
+            "type": "boolean"
+          },
+          "defaultCurrency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP",
+              "CAD",
+              "AUD",
+              "CHF"
+            ]
+          },
+          "codeThreeLetters": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "The ISO 3166-1 alpha-3 country code"
+          }
+        },
+        "example": {
+          "code": "DE",
+          "name": "Germany",
+          "region": "Europe",
+          "blacklisted": false,
+          "defaultCurrency": "EUR",
+          "codeThreeLetters": "DEU"
+        }
+      }
+    },
+    "createAdyenPaymentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "isTestOrder": {
+          "type": "boolean",
+          "default": false
+        },
+        "additionalCostId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        }
+      }
+    },
+    "createAdyenPaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sessionData"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the Adyen checkout session"
+        },
+        "sessionData": {
+          "type": "string",
+          "description": "Adyen checkout session data"
+        }
+      }
+    },
+    "createConfigurationRequest": {
+      "type": "object",
+      "required": [
+        "items"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "title": "Items with modelId",
+            "type": "object",
+            "required": [
+              "modelId",
+              "quantity"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "modelId": {
+                "type": "string",
+                "description": "SHA-256 hash of the model file"
+              },
+              "quantity": {
+                "type": "number",
+                "minimum": 1,
+                "description": "Amount of models to be ordered"
+              },
+              "scale": {
+                "type": "number",
+                "minimum": 0,
+                "description": "The scale factor applied to the model (default = 1)"
+              }
+            }
+          }
+        }
+      },
+      "example": {
+        "items": [
+          {
+            "modelId": "some-model-id",
+            "quantity": 42,
+            "scale": 1
+          }
+        ]
+      }
+    },
+    "createConfigurationResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "configurationId"
+      ],
+      "properties": {
+        "configurationId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        }
+      }
+    },
+    "createInvoicePaymentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "isTestOrder": {
+          "type": "boolean",
+          "default": false
+        },
+        "additionalCostId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        }
+      }
+    },
+    "createInvoicePaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paymentId",
+        "status"
+      ],
+      "properties": {
+        "paymentId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "status": {
+          "type": "boolean"
+        }
+      }
+    },
+    "createInquiryRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "description"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the manual inquiry"
+        },
+        "description": {
+          "type": "string",
+          "description": "The description of the manual inquiry"
+        },
+        "vendorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The vendor IDs to send the inquiry to"
+        }
+      }
+    },
+    "createManualOrder": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vendorId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+$"
+        },
+        "productionTimeFast": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "productionTimeSlow": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "user": {
+          "type": "object",
+          "description": "User information for the order",
+          "additionalProperties": false,
+          "required": [
+            "emailAddress",
+            "shipping",
+            "billing"
+          ],
+          "properties": {
+            "emailAddress": {
+              "type": "string",
+              "format": "email",
+              "example": "max@mustermann.de"
+            },
+            "shipping": {
+              "title": "Shipping",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "firstName",
+                "lastName",
+                "address",
+                "city",
+                "zipCode",
+                "countryCode",
+                "phoneNumber"
+              ],
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "address": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "addressLine2": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "city": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "zipCode": {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                "stateCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8
+                },
+                "countryCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$",
+                  "description": "The ISO 3166-1 alpha-2 country code"
+                },
+                "companyName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "phoneNumber": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              },
+              "example": {
+                "firstName": "Max",
+                "lastName": "Mustermann",
+                "address": "Musterstraße 1",
+                "city": "Musterstadt",
+                "zipCode": "12345",
+                "countryCode": "DE",
+                "companyName": "Musterfirma",
+                "phoneNumber": "01234567"
+              }
+            },
+            "billing": {
+              "title": "Billing",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "firstName",
+                "lastName",
+                "address",
+                "city",
+                "zipCode",
+                "countryCode",
+                "isCompany"
+              ],
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "address": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "addressLine2": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "city": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "zipCode": {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                "stateCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8
+                },
+                "countryCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$",
+                  "description": "The ISO 3166-1 alpha-2 country code"
+                },
+                "companyName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "phoneNumber": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 32
+                },
+                "vatId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 64
+                },
+                "isCompany": {
+                  "type": "boolean",
+                  "description": "Indicate if customer is company user"
+                }
+              },
+              "example": {
+                "firstName": "Max",
+                "lastName": "Mustermann",
+                "address": "Musterstraße 1",
+                "city": "Musterstadt",
+                "zipCode": "12345",
+                "countryCode": "DE",
+                "companyName": "Musterfirma",
+                "phoneNumber": "01234567"
+              }
+            }
+          },
+          "example": {
+            "emailAddress": "max@mustermann.de",
+            "shipping": {
+              "firstName": "Max",
+              "lastName": "Mustermann",
+              "address": "Musterstraße 1",
+              "city": "Musterstadt",
+              "zipCode": "12345",
+              "countryCode": "DE",
+              "phoneNumber": "01234567"
+            },
+            "billing": {
+              "firstName": "Max",
+              "lastName": "Mustermann",
+              "address": "Musterstraße 1",
+              "city": "Musterstadt",
+              "zipCode": "12345",
+              "countryCode": "DE",
+              "companyName": "Musterfirma",
+              "isCompany": true,
+              "vatId": "AB12345"
+            }
+          }
+        },
+        "customerCurrency": {
+          "type": "string",
+          "enum": [
+            "USD",
+            "EUR",
+            "GBP",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "customerReference": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "modelId",
+              "quantity",
+              "price",
+              "materialConfigId",
+              "printingMethodId"
+            ],
+            "properties": {
+              "modelId": {
+                "type": "string"
+              },
+              "materialConfigId": {
+                "type": "string",
+                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+              },
+              "printingMethodId": {
+                "type": "string",
+                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "scale": {
+                "type": "number",
+                "default": 1
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "economy",
+                    "expedited",
+                    "infill_40",
+                    "infill_60",
+                    "infill_80",
+                    "infill_95",
+                    "infill_100"
+                  ]
+                }
+              },
+              "note": {
+                "type": "string"
+              },
+              "price": {
+                "type": "number",
+                "description": "The net price"
+              }
+            }
+          }
+        },
+        "shipping": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "type",
+            "deliveryTimeFast",
+            "deliveryTimeSlow",
+            "price"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "express"
+              ]
+            },
+            "deliveryTimeFast": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "deliveryTimeSlow": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "price": {
+              "type": "number",
+              "description": "The net price"
+            }
+          }
+        },
+        "additionalCosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "description",
+              "price"
+            ],
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "price": {
+                "type": "number",
+                "description": "The net price"
+              }
+            }
+          }
+        }
+      },
+      "required": {
+        "required": [
+          "vendorId",
+          "user",
+          "customerCurrency"
+        ]
+      }
+    },
+    "createOfferRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cartId"
+      ],
+      "properties": {
+        "cartId": {
+          "type": "string",
+          "description": "The cart to create an offer from"
+        },
+        "expires": {
+          "type": "boolean",
+          "description": "Determines if offer is temporary"
+        }
+      }
+    },
+    "createOfferResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "offerId"
+      ],
+      "properties": {
+        "offerId": {
+          "type": "string"
+        }
+      }
+    },
+    "createOrderFromCart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cartId",
+        "user"
+      ],
+      "properties": {
+        "cartId": {
+          "type": "string",
+          "description": "Unique cart id"
+        },
+        "user": {
+          "type": "object",
+          "description": "User information for the order",
+          "additionalProperties": false,
+          "required": [
+            "emailAddress",
+            "shipping",
+            "billing"
+          ],
+          "properties": {
+            "emailAddress": {
+              "type": "string",
+              "format": "email",
+              "example": "max@mustermann.de"
+            },
+            "shipping": {
+              "title": "Shipping",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "firstName",
+                "lastName",
+                "address",
+                "city",
+                "zipCode",
+                "countryCode",
+                "phoneNumber"
+              ],
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "address": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "addressLine2": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "city": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "zipCode": {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                "stateCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8
+                },
+                "countryCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$",
+                  "description": "The ISO 3166-1 alpha-2 country code"
+                },
+                "companyName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "phoneNumber": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              },
+              "example": {
+                "firstName": "Max",
+                "lastName": "Mustermann",
+                "address": "Musterstraße 1",
+                "city": "Musterstadt",
+                "zipCode": "12345",
+                "countryCode": "DE",
+                "companyName": "Musterfirma",
+                "phoneNumber": "01234567"
+              }
+            },
+            "billing": {
+              "title": "Billing",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "firstName",
+                "lastName",
+                "address",
+                "city",
+                "zipCode",
+                "countryCode",
+                "isCompany"
+              ],
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "address": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "addressLine2": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "city": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "zipCode": {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                "stateCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8
+                },
+                "countryCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$",
+                  "description": "The ISO 3166-1 alpha-2 country code"
+                },
+                "companyName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "phoneNumber": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 32
+                },
+                "vatId": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 64
+                },
+                "isCompany": {
+                  "type": "boolean",
+                  "description": "Indicate if customer is company user"
+                }
+              },
+              "example": {
+                "firstName": "Max",
+                "lastName": "Mustermann",
+                "address": "Musterstraße 1",
+                "city": "Musterstadt",
+                "zipCode": "12345",
+                "countryCode": "DE",
+                "companyName": "Musterfirma",
+                "phoneNumber": "01234567"
+              }
+            }
+          },
+          "example": {
+            "emailAddress": "max@mustermann.de",
+            "shipping": {
+              "firstName": "Max",
+              "lastName": "Mustermann",
+              "address": "Musterstraße 1",
+              "city": "Musterstadt",
+              "zipCode": "12345",
+              "countryCode": "DE",
+              "phoneNumber": "01234567"
+            },
+            "billing": {
+              "firstName": "Max",
+              "lastName": "Mustermann",
+              "address": "Musterstraße 1",
+              "city": "Musterstadt",
+              "zipCode": "12345",
+              "countryCode": "DE",
+              "companyName": "Musterfirma",
+              "isCompany": true,
+              "vatId": "AB12345"
+            }
+          }
+        },
+        "gaClientId": {
+          "type": "string",
+          "description": "Google Analytics Client ID for conversion tracking. If not provided, a random identifier will be assigned instead."
+        },
+        "customsInformation": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Customs information for the order that includes a description of the parts and their industry",
+          "properties": {
+            "description": {
+              "type": "string",
+              "maxLength": 1024
+            },
+            "industry": {
+              "type": "string",
+              "enum": [
+                "aviation",
+                "aerospace",
+                "automotive",
+                "biotechnology",
+                "chemicals",
+                "construction_and_engineering",
+                "consumer_goods",
+                "electronic_equipment",
+                "healthcare",
+                "household_durables",
+                "industrial_goods",
+                "machinery_and_equipment",
+                "marine",
+                "other"
+              ]
+            }
+          }
+        }
+      },
+      "example": {
+        "cartId": "some-cart-id",
+        "user": {
+          "emailAddress": "max@mustermann.de",
+          "shipping": {
+            "firstName": "Max",
+            "lastName": "Mustermann",
+            "address": "Musterstraße 1",
+            "city": "Musterstadt",
+            "zipCode": "12345",
+            "countryCode": "DE",
+            "phoneNumber": "01234567"
+          },
+          "billing": {
+            "firstName": "Max",
+            "lastName": "Mustermann",
+            "address": "Musterstraße 1",
+            "city": "Musterstadt",
+            "zipCode": "12345",
+            "isCompany": false,
+            "countryCode": "DE"
+          }
+        },
+        "utmParams": {
+          "source": "some-utm-source",
+          "medium": "some-utm-medium",
+          "campaign": "some-utm-campaign",
+          "term": "some-utm-term",
+          "content": "some-utm-content"
+        },
+        "gaClientId": "bdebde4b-9b92-4638-b1b7-b7e1eb894a28",
+        "customsInformation": {
+          "purpose": "Glasses frame",
+          "industry": "Consumer goods"
+        }
+      }
+    },
+    "createPayPalPaymentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "isTestOrder": {
+          "type": "boolean",
+          "default": false
+        },
+        "additionalCostId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        }
+      }
+    },
+    "createPayPalPaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paypalOrderId"
+      ],
+      "properties": {
+        "paypalOrderId": {
+          "type": "string",
+          "description": "The PayPal order id"
+        }
+      }
+    },
+    "createPriceRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "currency",
+        "countryCode",
+        "models"
+      ],
+      "properties": {
+        "refresh": {
+          "type": "boolean"
+        },
+        "currency": {
+          "type": "string",
+          "enum": [
+            "USD",
+            "EUR",
+            "GBP",
+            "CAD",
+            "AUD",
+            "CHF"
+          ]
+        },
+        "countryCode": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "The ISO 3166-1 alpha-2 country code"
+        },
+        "models": {
+          "type": "array",
+          "description": "List of modelIds and their respective quantities for which to query prices.",
+          "minItems": 1,
+          "items": {
+            "title": "Model",
+            "type": "object",
+            "required": [
+              "modelId",
+              "quantity"
+            ],
+            "properties": {
+              "modelId": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "scale": {
+                "type": "number",
+                "default": 1,
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "materialConfigIds": {
+          "type": "array",
+          "description": "Optional list of materialConfigIds for which to query prices. If omitted or empty list provided, all materials will be queried.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "vendorIds": {
+          "type": "array",
+          "description": "Optional list of vendorIds for which to query prices. If omitted or empty list provided, all vendors will be queried.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cartId": {
+          "type": "string",
+          "description": "Optional id of an already existing cart whose content should be taken into consideration for price calculations"
+        },
+        "ignoreUnknownMaterialConfigIds": {
+          "type": "boolean",
+          "description": "If set to true, unknown materialConfigIds will be ignored instead of resulting in a BadRequest error. Prices will be returned for all known materialConfigIds."
+        }
+      }
+    },
+    "createPriceResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "priceId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        }
+      }
+    },
+    "createQuotePaymentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "isTestOrder": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "createQuotePaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paymentId",
+        "status"
+      ],
+      "properties": {
+        "paymentId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "status": {
+          "type": "boolean"
+        }
+      }
+    },
+    "createStripePaymentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "isTestOrder": {
+          "type": "boolean",
+          "default": false
+        },
+        "additionalCostId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        }
+      }
+    },
+    "createStripePaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "url"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the Stripe checkout session"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the hosted Stripe checkout page"
+        }
+      }
+    },
+    "evolveModelRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fileUnit"
+      ],
+      "properties": {
+        "fileUnit": {
+          "type": "string",
+          "enum": [
+            "mm",
+            "cm",
+            "in"
+          ],
+          "default": "mm"
+        }
+      }
+    },
+    "executeInvoicePaymentRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Secret token"
+        }
+      }
+    },
+    "executeInvoicePaymentResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paymentId",
+        "status"
+      ],
+      "properties": {
+        "paymentId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+        },
+        "status": {
+          "type": "boolean"
+        }
+      }
+    },
+    "getDownloadUrlResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "The download URL of the file"
+        }
+      }
+    },
+    "getGroupedPriceResponse": {
+      "type": "object",
+      "required": [
+        "expiresAt",
+        "allComplete",
+        "printingServiceComplete",
+        "printingService",
+        "minimumProductionPrice"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "expiresAt": {
+          "type": "number",
+          "description": "UNIX timestamp of a date",
+          "example": 1658972807453
+        },
+        "allComplete": {
+          "type": "boolean",
+          "description": "Flag indicating if all printingServices have returned prices. Clients may continue polling for updates as long as this is \"false\""
+        },
+        "printingServiceComplete": {
+          "properties": {
+            "vendorId": {
+              "type": "boolean"
+            }
+          }
+        },
+        "printingService": {
+          "properties": {
+            "vendorId": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "quotes": {
+                  "type": "array",
+                  "items": {
+                    "title": "Quote",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "quoteId",
+                      "vendorId",
+                      "modelId",
+                      "materialConfigId",
+                      "price",
+                      "quantity",
+                      "currency",
+                      "isPrintable",
+                      "productionTimeFast",
+                      "productionTimeSlow",
+                      "scale"
+                    ],
+                    "properties": {
+                      "quoteId": {
+                        "type": "string"
+                      },
+                      "vendorId": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9]+$"
+                      },
+                      "modelId": {
+                        "type": "string"
+                      },
+                      "materialConfigId": {
+                        "type": "string"
+                      },
+                      "printingMethodId": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "quantity": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "The net price"
+                      },
+                      "priceInclVat": {
+                        "type": "number",
+                        "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+                      },
+                      "discount": {
+                        "type": "number"
+                      },
+                      "currency": {
+                        "type": "string",
+                        "enum": [
+                          "USD",
+                          "EUR",
+                          "GBP",
+                          "CAD",
+                          "AUD",
+                          "CHF"
+                        ]
+                      },
+                      "isPrintable": {
+                        "type": "boolean"
+                      },
+                      "productionTimeFast": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "productionTimeSlow": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "scale": {
+                        "type": "number"
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "price",
+                            "priceInclVat",
+                            "productionTimeFast",
+                            "productionTimeSlow"
+                          ],
+                          "properties": {
+                            "types": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "enum": [
+                                  "economy",
+                                  "expedited",
+                                  "infill_40",
+                                  "infill_60",
+                                  "infill_80",
+                                  "infill_95",
+                                  "infill_100"
+                                ]
+                              },
+                              "description": "List of applied option types"
+                            },
+                            "price": {
+                              "type": "number",
+                              "description": "The net price"
+                            },
+                            "priceInclVat": {
+                              "type": "number",
+                              "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+                            },
+                            "productionTimeFast": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "productionTimeSlow": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "example": {
+                      "quoteId": "bf2b604ae33685f698f2d603d9d78761546b87ee62874fc1e380ba5dea1a4848",
+                      "vendorId": "imaterialise",
+                      "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+                      "materialConfigId": "a97a2a21-0e71-51d1-b642-93b168660053",
+                      "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+                      "isPrintable": true,
+                      "quantity": 1,
+                      "productionTimeFast": 9,
+                      "productionTimeSlow": 10,
+                      "scale": 1,
+                      "options": [
+                        {
+                          "types": [
+                            "expedited"
+                          ],
+                          "productionTimeFast": 6,
+                          "productionTimeSlow": 7,
+                          "price": 93.65,
+                          "priceInclVat": 111.44
+                        }
+                      ],
+                      "currency": "USD",
+                      "price": 72.03,
+                      "priceInclVat": 85.72,
+                      "discount": 0
+                    }
+                  }
+                },
+                "shippings": {
+                  "type": "array",
+                  "items": {
+                    "title": "Shipping",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "shippingId",
+                      "vendorId",
+                      "name",
+                      "deliveryTime",
+                      "price",
+                      "currency",
+                      "type"
+                    ],
+                    "properties": {
+                      "shippingId": {
+                        "type": "string",
+                        "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                        "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+                      },
+                      "vendorId": {
+                        "type": "string",
+                        "pattern": "^[a-z0-9]+$"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "deliveryTime": {
+                        "type": "string",
+                        "pattern": "^[0-9]{1,2}(-[0-9]{1,2})?$"
+                      },
+                      "price": {
+                        "type": "number",
+                        "description": "The net price"
+                      },
+                      "priceInclVat": {
+                        "type": "number",
+                        "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+                      },
+                      "currency": {
+                        "type": "string",
+                        "enum": [
+                          "USD",
+                          "EUR",
+                          "GBP",
+                          "CAD",
+                          "AUD",
+                          "CHF"
+                        ]
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "standard",
+                          "express"
+                        ]
+                      },
+                      "materialPrice": {
+                        "properties": {
+                          "materialId": {
+                            "type": "object",
+                            "description": "Map of weight-based shipping prices. The key is the id of the material for the chosen materialConfigId. Reverse lookup of the materialId has to be done via the material-catalog.",
+                            "additionalProperties": false,
+                            "required": [
+                              "price",
+                              "priceInclVat"
+                            ],
+                            "properties": {
+                              "price": {
+                                "type": "number",
+                                "description": "Net shipping price of all models in the price requested in the material indicated by the materialId key"
+                              },
+                              "priceInclVat": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "example": {
+                      "shippingId": "dcf5a4d5-f639-4d0a-9d2c-829b7ec9f0fc",
+                      "name": "UPS Ground",
+                      "deliveryTime": "3-5",
+                      "price": 15.9,
+                      "priceInclVat": 18.9,
+                      "type": "standard",
+                      "vendorId": "imaterialise",
+                      "currency": "USD"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "minimumProductionPrice": {
+          "properties": {
+            "vendorId": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "price",
+                "priceInclVat",
+                "currency"
+              ],
+              "properties": {
+                "price": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "priceInclVat": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "example": {
+        "expiresAt": 1658972807453,
+        "allComplete": true,
+        "printingServiceComplete": {
+          "baysingers": true,
+          "imaterialise": true
+        },
+        "minimumProductionPrice": {
+          "imaterialise": {
+            "price": 50,
+            "priceInclVat": 59.5,
+            "currency": "USD"
+          }
+        },
+        "printingService": {
+          "imaterialise": {
+            "quotes": [
+              {
+                "quoteId": "bf2b604ae33685f698f2d603d9d78761546b87ee62874fc1e380ba5dea1a4848",
+                "vendorId": "imaterialise",
+                "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+                "materialConfigId": "a97a2a21-0e71-51d1-b642-93b168660053",
+                "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+                "isPrintable": true,
+                "quantity": 1,
+                "productionTimeFast": 9,
+                "productionTimeSlow": 10,
+                "scale": 1,
+                "options": [
+                  {
+                    "types": [
+                      "expedited"
+                    ],
+                    "productionTimeFast": 6,
+                    "productionTimeSlow": 7,
+                    "price": 93.65,
+                    "priceInclVat": 111.44
+                  }
+                ],
+                "currency": "USD",
+                "price": 72.03,
+                "priceInclVat": 85.72,
+                "discount": 0
+              }
+            ],
+            "shippings": [
+              {
+                "shippingId": "e7b789e8-4c60-471d-9aef-9e83a29e3c62",
+                "vendorId": "imaterialise",
+                "name": "UPS",
+                "deliveryTime": "1-2",
+                "price": 15,
+                "priceInclVat": 17.85,
+                "currency": "USD"
+              }
+            ]
+          },
+          "baysingers": {
+            "quotes": [
+              {
+                "quoteId": "9eb77530625fce831afd3f4a1aed7ec09170fdaff3a5ad95b990a71d4dabf26a",
+                "vendorId": "baysingers",
+                "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+                "materialConfigId": "ac7fc3fa-e13c-596e-abe2-702889233c35",
+                "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+                "isPrintable": true,
+                "quantity": 1,
+                "productionTimeFast": 5,
+                "productionTimeSlow": 6,
+                "scale": 1,
+                "options": [
+                  {
+                    "types": [
+                      "expedited"
+                    ],
+                    "price": 15,
+                    "productionTimeFast": 1,
+                    "productionTimeSlow": 2,
+                    "priceInclVat": 17.85
+                  },
+                  {
+                    "types": [
+                      "infill_95"
+                    ],
+                    "price": 30.64,
+                    "productionTimeFast": 6,
+                    "productionTimeSlow": 7,
+                    "priceInclVat": 36.46
+                  },
+                  {
+                    "types": [
+                      "infill_80"
+                    ],
+                    "price": 28,
+                    "productionTimeFast": 6,
+                    "productionTimeSlow": 7,
+                    "priceInclVat": 33.32
+                  },
+                  {
+                    "types": [
+                      "infill_80",
+                      "expedited"
+                    ],
+                    "price": 33.6,
+                    "productionTimeFast": 2,
+                    "productionTimeSlow": 3,
+                    "priceInclVat": 40.32
+                  },
+                  {
+                    "types": [
+                      "infill_95",
+                      "expedited"
+                    ],
+                    "price": 36.77,
+                    "productionTimeFast": 2,
+                    "productionTimeSlow": 3,
+                    "priceInclVat": 43.76
+                  }
+                ],
+                "currency": "USD",
+                "price": 12,
+                "priceInclVat": 14.28
+              }
+            ],
+            "shippings": [
+              {
+                "vendorId": "baysingers",
+                "currency": "USD",
+                "shippingId": "5c026a8e-d2ae-4473-947e-1f5fc4dab8f0",
+                "name": "USPS Standard",
+                "deliveryTime": "4-5",
+                "type": "standard",
+                "price": 10,
+                "priceInclVat": 11.9,
+                "materialPrice": {
+                  "eae94ffc-d5b3-5470-bbd1-6c613f5b5d67": {
+                    "price": 10,
+                    "priceInclVat": 11.9
+                  },
+                  "b7bf2503-8f20-51b8-bb86-14bde1243fd2": {
+                    "price": 12,
+                    "priceInclVat": 14.28
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "getOrderConfiguration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "items",
+        "amounts"
+      ],
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "title": "Item",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "modelId",
+              "fileName",
+              "fileUnit",
+              "area",
+              "volume",
+              "dimensions",
+              "thumbnailUrl",
+              "created",
+              "quantity",
+              "scale",
+              "materialConfigId",
+              "materialName",
+              "netPrice",
+              "undiscountedNetPrice",
+              "currency",
+              "productionTimeFast",
+              "productionTimeSlow"
+            ],
+            "properties": {
+              "modelId": {
+                "type": "string"
+              },
+              "fileName": {
+                "type": "string"
+              },
+              "fileUnit": {
+                "type": "string",
+                "enum": [
+                  "mm",
+                  "cm",
+                  "in"
+                ]
+              },
+              "area": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "volume": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "dimensions": {
+                "title": "Dimensions",
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "properties": {
+                  "x": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "y": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "z": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "thumbnailUrl": {
+                "type": "string",
+                "format": "uri"
+              },
+              "sceneId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "created": {
+                "type": "number",
+                "description": "UNIX timestamp of a date",
+                "example": 1658972807453
+              },
+              "deleted": {
+                "type": "boolean"
+              },
+              "quantity": {
+                "type": "number"
+              },
+              "scale": {
+                "type": "number"
+              },
+              "materialConfigId": {
+                "type": "string",
+                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+              },
+              "materialName": {
+                "type": "string"
+              },
+              "printingMethodId": {
+                "type": "string",
+                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "economy",
+                    "expedited",
+                    "infill_40",
+                    "infill_60",
+                    "infill_80",
+                    "infill_95",
+                    "infill_100"
+                  ]
+                },
+                "description": "List of applied option types"
+              },
+              "netPrice": {
+                "type": "number",
+                "minimum": 0,
+                "example": 10.85,
+                "description": "Quote net price (after discounts) in the customer's currency"
+              },
+              "undiscountedNetPrice": {
+                "type": "number",
+                "minimum": 0,
+                "example": 10.85,
+                "description": "Quote net price (before discounts) in the customer's currency"
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "CAD",
+                  "AUD",
+                  "CHF"
+                ],
+                "description": "The customer's currency"
+              },
+              "productionTimeFast": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "productionTimeSlow": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "example": {
+              "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+              "fileName": "testmodel.stl",
+              "fileUnit": "mm",
+              "area": 6919.494140625,
+              "volume": 36753.34375,
+              "dimensions": {
+                "x": 69.88224792480469,
+                "y": 34.520084381103516,
+                "z": 34.52690124511719
+              },
+              "thumbnailUrl": "some-url",
+              "sceneId": "some-scene-id",
+              "created": 1610110143327,
+              "deleted": false,
+              "quantity": 42,
+              "scale": 1,
+              "materialConfigId": "5585fecb-9c8b-5329-b048-80f69fc7a6ca",
+              "materialName": "14k Gold",
+              "printingMethodId": "e81e77dc-5106-4c9c-8fab-7b0e0e00b72d",
+              "type": "expedited",
+              "types": [
+                "expedited"
+              ],
+              "netPrice": 150,
+              "currency": "EUR"
+            }
+          }
+        },
+        "additionalCosts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "description",
+              "netPrice",
+              "currency",
+              "vendorId"
+            ],
+            "properties": {
+              "description": {
+                "type": "string"
+              },
+              "netPrice": {
+                "type": "number",
+                "minimum": 0,
+                "example": 10.85
+              },
+              "undiscountedNetPrice": {
+                "type": "number",
+                "minimum": 0,
+                "example": 10.85
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "CAD",
+                  "AUD",
+                  "CHF"
+                ],
+                "description": "The customer's currency"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              }
+            }
+          }
+        },
+        "amounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "totalByVendor"
+          ],
+          "properties": {
+            "total": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "totalNetPrice",
+                "totalGrossPrice",
+                "discount",
+                "vatPrice",
+                "vatPercentage",
+                "undiscountedNetProductionPrice",
+                "undiscountedNetShippingPrice",
+                "currency"
+              ],
+              "properties": {
+                "totalNetPrice": {
+                  "type": "number",
+                  "description": "Total price of items + shipping with discount applied (excl. VAT)"
+                },
+                "totalGrossPrice": {
+                  "type": "number",
+                  "description": "Total gross price of production + shipping with discount applied (incl. VAT)"
+                },
+                "discount": {
+                  "type": "number",
+                  "description": "Total discount excl. VAT"
+                },
+                "vatPrice": {
+                  "type": "number",
+                  "description": "Total VAT cost (items + shipping)"
+                },
+                "vatPercentage": {
+                  "type": "number",
+                  "description": "The applied VAT percentage"
+                },
+                "undiscountedNetProductionPrice": {
+                  "type": "number",
+                  "description": "Total net production price without discount applied (excl. VAT)"
+                },
+                "undiscountedNetShippingPrice": {
+                  "type": "number",
+                  "description": "Total net shipping price without discount applied (excl. VAT)"
+                },
+                "undiscountedNetAdditionalCostsPrice": {
+                  "type": "number",
+                  "description": "Total net additional costs price without discount applied (excl. VAT)"
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                }
+              },
+              "example": {
+                "totalNetPrice": 100,
+                "totalGrossPrice": 120,
+                "discount": 0,
+                "vatPrice": 20,
+                "vatPercentage": 20,
+                "undiscountedNetProductionPrice": 80,
+                "undiscountedNetShippingPrice": 20,
+                "undiscountedNetAdditionalCostsPrice": 0,
+                "currency": "EUR"
+              }
+            },
+            "totalByVendor": {
+              "properties": {
+                "vendorId": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "totalNetPrice",
+                    "totalGrossPrice",
+                    "discount",
+                    "vatPrice",
+                    "vatPercentage",
+                    "undiscountedNetProductionPrice",
+                    "undiscountedNetShippingPrice",
+                    "currency"
+                  ],
+                  "properties": {
+                    "totalNetPrice": {
+                      "type": "number",
+                      "description": "Total price of items + shipping with discount applied (excl. VAT)"
+                    },
+                    "totalGrossPrice": {
+                      "type": "number",
+                      "description": "Total gross price of production + shipping with discount applied (incl. VAT)"
+                    },
+                    "discount": {
+                      "type": "number",
+                      "description": "Total discount excl. VAT"
+                    },
+                    "vatPrice": {
+                      "type": "number",
+                      "description": "Total VAT cost (items + shipping)"
+                    },
+                    "vatPercentage": {
+                      "type": "number",
+                      "description": "The applied VAT percentage"
+                    },
+                    "undiscountedNetProductionPrice": {
+                      "type": "number",
+                      "description": "Total net production price without discount applied (excl. VAT)"
+                    },
+                    "undiscountedNetShippingPrice": {
+                      "type": "number",
+                      "description": "Total net shipping price without discount applied (excl. VAT)"
+                    },
+                    "undiscountedNetAdditionalCostsPrice": {
+                      "type": "number",
+                      "description": "Total net additional costs price without discount applied (excl. VAT)"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "USD",
+                        "EUR",
+                        "GBP",
+                        "CAD",
+                        "AUD",
+                        "CHF"
+                      ]
+                    }
+                  },
+                  "example": {
+                    "totalNetPrice": 100,
+                    "totalGrossPrice": 120,
+                    "discount": 0,
+                    "vatPrice": 20,
+                    "vatPercentage": 20,
+                    "undiscountedNetProductionPrice": 80,
+                    "undiscountedNetShippingPrice": 20,
+                    "undiscountedNetAdditionalCostsPrice": 0,
+                    "currency": "EUR"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "minimumProductionPrice": {
+          "properties": {
+            "vendorId": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "price",
+                "priceInclVat",
+                "currency",
+                "productionFee"
+              ],
+              "properties": {
+                "price": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "priceInclVat": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                },
+                "productionFee": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Difference between the vendor's net minimum production price and the net total of all the quotes for that vendor. The value will be zero if the minimum production price is smaller than the sum of quote prices."
+                }
+              }
+            }
+          },
+          "example": {
+            "sculpteo": {
+              "price": 50,
+              "priceInclVat": 59.5,
+              "currency": "EUR",
+              "productionFee": 20.26
+            }
+          }
+        }
+      }
+    },
+    "getPriceResponse": {
+      "type": "object",
+      "required": [
+        "expiresAt",
+        "allComplete",
+        "printingServiceComplete",
+        "quotes",
+        "shippings",
+        "minimumProductionPrice"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "expiresAt": {
+          "type": "number",
+          "description": "UNIX timestamp of a date",
+          "example": 1658972807453
+        },
+        "allComplete": {
+          "type": "boolean",
+          "description": "Flag indicating if all printingServices have returned prices. Clients may continue polling for updates as long as this is \"false\""
+        },
+        "printingServiceComplete": {
+          "properties": {
+            "vendorId": {
+              "type": "boolean"
+            }
+          }
+        },
+        "quotes": {
+          "type": "array",
+          "items": {
+            "title": "Quote",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "quoteId",
+              "vendorId",
+              "modelId",
+              "materialConfigId",
+              "price",
+              "quantity",
+              "currency",
+              "isPrintable",
+              "productionTimeFast",
+              "productionTimeSlow",
+              "scale"
+            ],
+            "properties": {
+              "quoteId": {
+                "type": "string"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              },
+              "modelId": {
+                "type": "string"
+              },
+              "materialConfigId": {
+                "type": "string"
+              },
+              "printingMethodId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "price": {
+                "type": "number",
+                "description": "The net price"
+              },
+              "priceInclVat": {
+                "type": "number",
+                "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+              },
+              "discount": {
+                "type": "number"
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "CAD",
+                  "AUD",
+                  "CHF"
+                ]
+              },
+              "isPrintable": {
+                "type": "boolean"
+              },
+              "productionTimeFast": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "productionTimeSlow": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "scale": {
+                "type": "number"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "price",
+                    "priceInclVat",
+                    "productionTimeFast",
+                    "productionTimeSlow"
+                  ],
+                  "properties": {
+                    "types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "economy",
+                          "expedited",
+                          "infill_40",
+                          "infill_60",
+                          "infill_80",
+                          "infill_95",
+                          "infill_100"
+                        ]
+                      },
+                      "description": "List of applied option types"
+                    },
+                    "price": {
+                      "type": "number",
+                      "description": "The net price"
+                    },
+                    "priceInclVat": {
+                      "type": "number",
+                      "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+                    },
+                    "productionTimeFast": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "productionTimeSlow": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "quoteId": "bf2b604ae33685f698f2d603d9d78761546b87ee62874fc1e380ba5dea1a4848",
+              "vendorId": "imaterialise",
+              "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+              "materialConfigId": "a97a2a21-0e71-51d1-b642-93b168660053",
+              "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+              "isPrintable": true,
+              "quantity": 1,
+              "productionTimeFast": 9,
+              "productionTimeSlow": 10,
+              "scale": 1,
+              "options": [
+                {
+                  "types": [
+                    "expedited"
+                  ],
+                  "productionTimeFast": 6,
+                  "productionTimeSlow": 7,
+                  "price": 93.65,
+                  "priceInclVat": 111.44
+                }
+              ],
+              "currency": "USD",
+              "price": 72.03,
+              "priceInclVat": 85.72,
+              "discount": 0
+            }
+          }
+        },
+        "shippings": {
+          "type": "array",
+          "items": {
+            "title": "Shipping",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "shippingId",
+              "vendorId",
+              "name",
+              "deliveryTime",
+              "price",
+              "currency",
+              "type"
+            ],
+            "properties": {
+              "shippingId": {
+                "type": "string",
+                "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+                "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "deliveryTime": {
+                "type": "string",
+                "pattern": "^[0-9]{1,2}(-[0-9]{1,2})?$"
+              },
+              "price": {
+                "type": "number",
+                "description": "The net price"
+              },
+              "priceInclVat": {
+                "type": "number",
+                "description": "Net price + VAT price. Equal to net price if no VAT has been paid."
+              },
+              "currency": {
+                "type": "string",
+                "enum": [
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "CAD",
+                  "AUD",
+                  "CHF"
+                ]
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "standard",
+                  "express"
+                ]
+              },
+              "materialPrice": {
+                "properties": {
+                  "materialId": {
+                    "type": "object",
+                    "description": "Map of weight-based shipping prices. The key is the id of the material for the chosen materialConfigId. Reverse lookup of the materialId has to be done via the material-catalog.",
+                    "additionalProperties": false,
+                    "required": [
+                      "price",
+                      "priceInclVat"
+                    ],
+                    "properties": {
+                      "price": {
+                        "type": "number",
+                        "description": "Net shipping price of all models in the price requested in the material indicated by the materialId key"
+                      },
+                      "priceInclVat": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "example": {
+              "shippingId": "dcf5a4d5-f639-4d0a-9d2c-829b7ec9f0fc",
+              "name": "UPS Ground",
+              "deliveryTime": "3-5",
+              "price": 15.9,
+              "priceInclVat": 18.9,
+              "type": "standard",
+              "vendorId": "imaterialise",
+              "currency": "USD"
+            }
+          }
+        },
+        "minimumProductionPrice": {
+          "properties": {
+            "vendorId": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "price",
+                "priceInclVat",
+                "currency"
+              ],
+              "properties": {
+                "price": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "priceInclVat": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "example": {
+        "expiresAt": 1658972807453,
+        "allComplete": true,
+        "printingServiceComplete": {
+          "baysingers": true,
+          "imaterialise": true
+        },
+        "minimumProductionPrice": {
+          "imaterialise": {
+            "price": 50,
+            "priceInclVat": 59.5,
+            "currency": "USD"
+          }
+        },
+        "quotes": [
+          {
+            "quoteId": "bf2b604ae33685f698f2d603d9d78761546b87ee62874fc1e380ba5dea1a4848",
+            "vendorId": "imaterialise",
+            "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+            "materialConfigId": "a97a2a21-0e71-51d1-b642-93b168660053",
+            "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+            "isPrintable": true,
+            "quantity": 1,
+            "productionTimeFast": 9,
+            "productionTimeSlow": 10,
+            "scale": 1,
+            "options": [
+              {
+                "types": [
+                  "expedited"
+                ],
+                "productionTimeFast": 6,
+                "productionTimeSlow": 7,
+                "price": 93.65,
+                "priceInclVat": 111.44
+              }
+            ],
+            "currency": "USD",
+            "price": 72.03,
+            "priceInclVat": 85.72,
+            "discount": 0
+          },
+          {
+            "quoteId": "9eb77530625fce831afd3f4a1aed7ec09170fdaff3a5ad95b990a71d4dabf26a",
+            "vendorId": "baysingers",
+            "modelId": "81dee7e88f5d780e1ba0e6317ffec3c68bed50e3",
+            "materialConfigId": "ac7fc3fa-e13c-596e-abe2-702889233c35",
+            "printingMethodId": "9bf95166-8a54-4f91-80ef-d05fb8712223",
+            "isPrintable": true,
+            "quantity": 1,
+            "productionTimeFast": 5,
+            "productionTimeSlow": 6,
+            "scale": 1,
+            "options": [
+              {
+                "types": [
+                  "expedited"
+                ],
+                "price": 15,
+                "productionTimeFast": 1,
+                "productionTimeSlow": 2,
+                "priceInclVat": 17.85
+              },
+              {
+                "types": [
+                  "infill_95"
+                ],
+                "price": 30.64,
+                "productionTimeFast": 6,
+                "productionTimeSlow": 7,
+                "priceInclVat": 36.46
+              },
+              {
+                "types": [
+                  "infill_80"
+                ],
+                "price": 28,
+                "productionTimeFast": 6,
+                "productionTimeSlow": 7,
+                "priceInclVat": 33.32
+              },
+              {
+                "types": [
+                  "infill_80",
+                  "expedited"
+                ],
+                "price": 33.6,
+                "productionTimeFast": 2,
+                "productionTimeSlow": 3,
+                "priceInclVat": 40.32
+              },
+              {
+                "types": [
+                  "infill_95",
+                  "expedited"
+                ],
+                "price": 36.77,
+                "productionTimeFast": 2,
+                "productionTimeSlow": 3,
+                "priceInclVat": 43.76
+              }
+            ],
+            "currency": "USD",
+            "price": 12,
+            "priceInclVat": 14.28
+          }
+        ],
+        "shippings": [
+          {
+            "shippingId": "e7b789e8-4c60-471d-9aef-9e83a29e3c62",
+            "vendorId": "imaterialise",
+            "name": "UPS",
+            "deliveryTime": "1-2",
+            "price": 15,
+            "priceInclVat": 17.85,
+            "currency": "USD"
+          },
+          {
+            "vendorId": "baysingers",
+            "currency": "USD",
+            "shippingId": "5c026a8e-d2ae-4473-947e-1f5fc4dab8f0",
+            "name": "USPS Standard",
+            "deliveryTime": "4-5",
+            "type": "standard",
+            "price": 10,
+            "priceInclVat": 11.9,
+            "materialPrice": {
+              "eae94ffc-d5b3-5470-bbd1-6c613f5b5d67": {
+                "price": 10,
+                "priceInclVat": 11.9
+              },
+              "b7bf2503-8f20-51b8-bb86-14bde1243fd2": {
+                "price": 12,
+                "priceInclVat": 14.28
+              }
+            }
+          }
+        ]
+      }
+    },
+    "healthCheckResponse": {
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok"
+          ]
+        }
+      }
+    },
+    "model": {
+      "title": "Model",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modelId",
+        "fileName",
+        "fileUnit",
+        "area",
+        "volume",
+        "dimensions",
+        "thumbnailUrl",
+        "created"
+      ],
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "fileUnit": {
+          "type": "string",
+          "enum": [
+            "mm",
+            "cm",
+            "in"
+          ]
+        },
+        "area": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "dimensions": {
+          "title": "Dimensions",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "properties": {
+            "x": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "y": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "z": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "sceneId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created": {
+          "type": "number",
+          "description": "UNIX timestamp of a date",
+          "example": 1658972807453
+        },
+        "deleted": {
+          "type": "boolean"
+        }
+      },
+      "example": {
+        "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+        "fileName": "testmodel.stl",
+        "fileUnit": "mm",
+        "area": 6919.494140625,
+        "volume": 36753.34375,
+        "dimensions": {
+          "x": 69.88224792480469,
+          "y": 34.520084381103516,
+          "z": 34.52690124511719
+        },
+        "thumbnailUrl": "some-url",
+        "sceneId": "some-scene-id",
+        "created": 1610110143327,
+        "deleted": false
+      }
+    },
+    "modelList": {
+      "type": "array",
+      "items": {
+        "title": "Model",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "modelId",
+          "fileName",
+          "fileUnit",
+          "area",
+          "volume",
+          "dimensions",
+          "thumbnailUrl",
+          "created"
+        ],
+        "properties": {
+          "modelId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileUnit": {
+            "type": "string",
+            "enum": [
+              "mm",
+              "cm",
+              "in"
+            ]
+          },
+          "area": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "volume": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "y": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "z": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "sceneId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created": {
+            "type": "number",
+            "description": "UNIX timestamp of a date",
+            "example": 1658972807453
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+          "fileName": "testmodel.stl",
+          "fileUnit": "mm",
+          "area": 6919.494140625,
+          "volume": 36753.34375,
+          "dimensions": {
+            "x": 69.88224792480469,
+            "y": 34.520084381103516,
+            "z": 34.52690124511719
+          },
+          "thumbnailUrl": "some-url",
+          "sceneId": "some-scene-id",
+          "created": 1610110143327,
+          "deleted": false
+        }
+      }
+    },
+    "modelWithEmptyGeometry": {
+      "title": "Model",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "modelId",
+        "fileName",
+        "fileUnit",
+        "area",
+        "volume",
+        "dimensions",
+        "thumbnailUrl",
+        "created"
+      ],
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "fileUnit": {
+          "type": "string",
+          "enum": [
+            "mm",
+            "cm",
+            "in"
+          ]
+        },
+        "area": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "volume": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "dimensions": {
+          "title": "Dimensions",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "x",
+            "y",
+            "z"
+          ],
+          "properties": {
+            "x": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "y": {
+              "type": [
+                "number",
+                "null"
+              ]
+            },
+            "z": {
+              "type": [
+                "number",
+                "null"
+              ]
+            }
+          }
+        },
+        "thumbnailUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "sceneId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "created": {
+          "type": "number",
+          "description": "UNIX timestamp of a date",
+          "example": 1658972807453
+        },
+        "deleted": {
+          "type": "boolean"
+        }
+      },
+      "example": {
+        "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+        "fileName": "testmodel.stl",
+        "fileUnit": "mm",
+        "area": null,
+        "volume": null,
+        "dimensions": {
+          "x": null,
+          "y": null,
+          "z": null
+        },
+        "thumbnailUrl": "some-url",
+        "sceneId": "some-scene-id",
+        "created": 1610110143327,
+        "deleted": false
+      }
+    },
+    "nonEmptyModelList": {
+      "type": "array",
+      "items": {
+        "title": "Model",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "modelId",
+          "fileName",
+          "fileUnit",
+          "area",
+          "volume",
+          "dimensions",
+          "thumbnailUrl",
+          "created"
+        ],
+        "properties": {
+          "modelId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileUnit": {
+            "type": "string",
+            "enum": [
+              "mm",
+              "cm",
+              "in"
+            ]
+          },
+          "area": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "volume": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "dimensions": {
+            "title": "Dimensions",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "x",
+              "y",
+              "z"
+            ],
+            "properties": {
+              "x": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "y": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "z": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "sceneId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "created": {
+            "type": "number",
+            "description": "UNIX timestamp of a date",
+            "example": 1658972807453
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        },
+        "example": {
+          "modelId": "6a507bb3-0ae7-4551-8934-84dcb4516431",
+          "fileName": "testmodel.stl",
+          "fileUnit": "mm",
+          "area": 6919.494140625,
+          "volume": 36753.34375,
+          "dimensions": {
+            "x": 69.88224792480469,
+            "y": 34.520084381103516,
+            "z": 34.52690124511719
+          },
+          "thumbnailUrl": "some-url",
+          "sceneId": "some-scene-id",
+          "created": 1610110143327,
+          "deleted": false
+        }
+      },
+      "minItems": 1
+    },
+    "orderResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "orderId",
+        "orderNumber",
+        "amounts"
+      ],
+      "properties": {
+        "orderId": {
+          "type": "string",
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd",
+          "description": "Unique orderId in uuid format"
+        },
+        "orderNumber": {
+          "type": "string",
+          "description": "The order number for customer reference"
+        },
+        "amounts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "totalByVendor"
+          ],
+          "properties": {
+            "total": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "totalNetPrice",
+                "totalGrossPrice",
+                "discount",
+                "vatPrice",
+                "vatPercentage",
+                "undiscountedNetProductionPrice",
+                "undiscountedNetShippingPrice",
+                "currency"
+              ],
+              "properties": {
+                "totalNetPrice": {
+                  "type": "number",
+                  "description": "Total price of items + shipping with discount applied (excl. VAT)"
+                },
+                "totalGrossPrice": {
+                  "type": "number",
+                  "description": "Total gross price of production + shipping with discount applied (incl. VAT)"
+                },
+                "discount": {
+                  "type": "number",
+                  "description": "Total discount excl. VAT"
+                },
+                "vatPrice": {
+                  "type": "number",
+                  "description": "Total VAT cost (items + shipping)"
+                },
+                "vatPercentage": {
+                  "type": "number",
+                  "description": "The applied VAT percentage"
+                },
+                "undiscountedNetProductionPrice": {
+                  "type": "number",
+                  "description": "Total net production price without discount applied (excl. VAT)"
+                },
+                "undiscountedNetShippingPrice": {
+                  "type": "number",
+                  "description": "Total net shipping price without discount applied (excl. VAT)"
+                },
+                "undiscountedNetAdditionalCostsPrice": {
+                  "type": "number",
+                  "description": "Total net additional costs price without discount applied (excl. VAT)"
+                },
+                "currency": {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "CAD",
+                    "AUD",
+                    "CHF"
+                  ]
+                }
+              },
+              "example": {
+                "totalNetPrice": 100,
+                "totalGrossPrice": 120,
+                "discount": 0,
+                "vatPrice": 20,
+                "vatPercentage": 20,
+                "undiscountedNetProductionPrice": 80,
+                "undiscountedNetShippingPrice": 20,
+                "undiscountedNetAdditionalCostsPrice": 0,
+                "currency": "EUR"
+              }
+            },
+            "totalByVendor": {
+              "properties": {
+                "vendorId": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "totalNetPrice",
+                    "totalGrossPrice",
+                    "discount",
+                    "vatPrice",
+                    "vatPercentage",
+                    "undiscountedNetProductionPrice",
+                    "undiscountedNetShippingPrice",
+                    "currency"
+                  ],
+                  "properties": {
+                    "totalNetPrice": {
+                      "type": "number",
+                      "description": "Total price of items + shipping with discount applied (excl. VAT)"
+                    },
+                    "totalGrossPrice": {
+                      "type": "number",
+                      "description": "Total gross price of production + shipping with discount applied (incl. VAT)"
+                    },
+                    "discount": {
+                      "type": "number",
+                      "description": "Total discount excl. VAT"
+                    },
+                    "vatPrice": {
+                      "type": "number",
+                      "description": "Total VAT cost (items + shipping)"
+                    },
+                    "vatPercentage": {
+                      "type": "number",
+                      "description": "The applied VAT percentage"
+                    },
+                    "undiscountedNetProductionPrice": {
+                      "type": "number",
+                      "description": "Total net production price without discount applied (excl. VAT)"
+                    },
+                    "undiscountedNetShippingPrice": {
+                      "type": "number",
+                      "description": "Total net shipping price without discount applied (excl. VAT)"
+                    },
+                    "undiscountedNetAdditionalCostsPrice": {
+                      "type": "number",
+                      "description": "Total net additional costs price without discount applied (excl. VAT)"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "enum": [
+                        "USD",
+                        "EUR",
+                        "GBP",
+                        "CAD",
+                        "AUD",
+                        "CHF"
+                      ]
+                    }
+                  },
+                  "example": {
+                    "totalNetPrice": 100,
+                    "totalGrossPrice": 120,
+                    "discount": 0,
+                    "vatPrice": 20,
+                    "vatPercentage": 20,
+                    "undiscountedNetProductionPrice": 80,
+                    "undiscountedNetShippingPrice": 20,
+                    "undiscountedNetAdditionalCostsPrice": 0,
+                    "currency": "EUR"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "orderStatusUpdateRequest": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "vendorId",
+          "status"
+        ],
+        "properties": {
+          "vendorId": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ordered",
+              "in_production",
+              "shipped",
+              "received",
+              "blocked",
+              "cancelled"
+            ]
+          },
+          "trackingUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "trackingNumber": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "orderStatusResponse": {
+      "properties": {
+        "estDeliveryTime": {
+          "properties": {}
+        }
+      }
+    },
+    "provider": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "vendorId",
+          "name",
+          "description",
+          "production",
+          "enabled",
+          "recommended",
+          "stateCode",
+          "premium",
+          "printingMethodIds"
+        ],
+        "properties": {
+          "vendorId": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "image": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "production": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "default"
+            ],
+            "properties": {
+              "default": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "code"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "code": {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$",
+                    "description": "The ISO 3166-1 alpha-2 country code"
+                  }
+                }
+              },
+              "origin": {
+                "properties": {
+                  "countryCode": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "name",
+                      "code"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$",
+                        "description": "The ISO 3166-1 alpha-2 country code"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "recommended": {
+            "type": "boolean"
+          },
+          "stateCode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 3
+          },
+          "premium": {
+            "type": "boolean"
+          },
+          "printingMethodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+              "example": "20106a2d-1fc5-4a04-8393-6139e5803dfd"
+            }
+          },
+          "specializations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "serviceOffers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "certifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "profileImages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "name",
+                "url",
+                "createdAt"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          }
+        }
+      },
+      "example": [
+        {
+          "vendorId": "imaterialise",
+          "name": "i.Materialise",
+          "description": "i.Materialise is one of the leading 3D printing services in the world.",
+          "production": {
+            "default": {
+              "country": "United States"
+            },
+            "origin": {
+              "DE": {
+                "country": "Belgium"
+              },
+              "FR": {
+                "country": "Belgium"
+              }
+            }
+          },
+          "image": "https://image.com/imaterialise.png",
+          "enabled": true,
+          "recommended": true,
+          "premium": true,
+          "printingMethodIds": [
+            "9bf95166-8a54-4f91-80ef-d05fb8712223",
+            "85484385-27fe-4e45-a3c2-c54f44d36b66"
+          ],
+          "specializations": [
+            "rapid_prototyping",
+            "end_use_parts"
+          ],
+          "serviceOffers": [
+            "3d_printing"
+          ],
+          "certifications": [],
+          "profileImages": [
+            {
+              "name": "test-img.png",
+              "createdAt": "2023-11-30T07:16:38.052Z",
+              "url": "http://localhost:9000/cc-catalog-provider-images/d1b9fcd9-bfbc-46dc-9ae9-82b67a4ae046"
+            }
+          ]
+        },
+        {
+          "vendorId": "facfox",
+          "name": "FacFox",
+          "description": "Facfox is a Chinese manufacturer with headquarters in Hangzhou.",
+          "production": {
+            "default": {
+              "country": "China"
+            }
+          },
+          "image": "https://image.com/facfox.png",
+          "enabled": false,
+          "recommended": false,
+          "premium": false,
+          "printingMethodIds": [
+            "711ea8c8-4544-47d0-b263-91f76a058f85",
+            "9bf95166-8a54-4f91-80ef-d05fb8712223"
+          ],
+          "specializations": [
+            "large_size_manufacturing",
+            "large_batch_production"
+          ],
+          "serviceOffers": [
+            "3d_printing",
+            "cnc_machining",
+            "tapping_and_threading"
+          ],
+          "certifications": [
+            "iso_9001"
+          ],
+          "profileImages": [
+            {
+              "name": "profile-img.png",
+              "createdAt": "2023-11-30T08:17:38.052Z",
+              "url": "http://localhost:9000/cc-catalog-provider-images/6a543b0e-bd18-47dc-a797-a1ff07174779"
+            }
+          ]
+        }
+      ]
+    },
+    "setAdyenPaymentAsyncRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sessionResult"
+      ],
+      "properties": {
+        "sessionResult": {
+          "type": "string",
+          "description": "Adyen checkout session result data"
+        }
+      }
+    },
+    "triggerOrderPlacementRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vendorId"
+      ],
+      "properties": {
+        "vendorId": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+$"
+        }
+      }
+    },
+    "updateOrderRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "quotes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "quoteId"
+            ],
+            "properties": {
+              "quoteId": {
+                "type": "string",
+                "description": "ID of the quote to update"
+              },
+              "types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "economy",
+                    "expedited",
+                    "infill_40",
+                    "infill_60",
+                    "infill_80",
+                    "infill_95",
+                    "infill_100"
+                  ]
+                },
+                "description": "Option types of the quote to update (identifier only)"
+              },
+              "newTypes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "economy",
+                    "expedited",
+                    "infill_40",
+                    "infill_60",
+                    "infill_80",
+                    "infill_95",
+                    "infill_100"
+                  ]
+                },
+                "description": "Updated option types of the quote to update (identifier only)"
+              },
+              "materialConfigId": {
+                "type": "string",
+                "description": "Updated material configuration ID of the quote"
+              },
+              "vendorId": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+$",
+                "description": "Updated vendor ID of the quote"
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Updated quantity of the quote"
+              }
+            }
+          },
+          "example": [
+            {
+              "quoteId": "bf2b604ae33685f698f2d603d9d78761546b87ee62874fc1e380ba5dea1a4848",
+              "type": "infill_40",
+              "newType": null,
+              "materialConfigId": "a97a2a21-0e71-51d1-b642-93b168660053",
+              "vendorId": "facfox",
+              "quantity": 10
+            }
+          ]
+        },
+        "user": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "emailAddress": {
+              "type": "string",
+              "format": "email",
+              "example": "max@mustermann.de",
+              "description": "Updated email address of the user"
+            },
+            "shipping": {
+              "title": "Shipping",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "address": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "addressLine2": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "city": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "zipCode": {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                "stateCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8
+                },
+                "companyName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "phoneNumber": {
+                  "type": "string",
+                  "maxLength": 32
+                }
+              },
+              "example": {
+                "firstName": "Max",
+                "lastName": "Mustermann",
+                "address": "Musterstraße 1",
+                "city": "Musterstadt",
+                "zipCode": "12345",
+                "companyName": "Musterfirma",
+                "phoneNumber": "01234567"
+              },
+              "description": "Updated shipping information of the user"
+            },
+            "billing": {
+              "title": "Billing",
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "lastName": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "address": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "addressLine2": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "city": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "zipCode": {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                "stateCode": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 8
+                },
+                "companyName": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 128
+                },
+                "phoneNumber": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "maxLength": 32
+                }
+              },
+              "example": {
+                "firstName": "Max",
+                "lastName": "Mustermann",
+                "address": "Musterstraße 1",
+                "city": "Musterstadt",
+                "zipCode": "12345",
+                "companyName": "Musterfirma",
+                "phoneNumber": "01234567"
+              },
+              "description": "Updated billing information of the user"
+            }
+          }
+        },
+        "printingService": {
+          "properties": {
+            "vendorId": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+$"
+            }
+          },
+          "example": {
+            "oldVendorId": "newVendorId",
+            "oldVendorId2": "newVendorId2"
+          },
+          "description": "The mapping from old to new printing services. The key must be an existing printingService in the order. The value identifies the new printingService that replaces the one with the given key"
+        }
+      }
+    },
+    "validateVatIdRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vatId"
+      ],
+      "properties": {
+        "vatId": {
+          "type": "string"
+        }
+      }
+    },
+    "validateVatIdResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valid"
+      ],
+      "properties": {
+        "valid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "voucherListResponse": {
+      "title": "Voucher list response",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vouchers",
+        "total"
+      ],
+      "properties": {
+        "vouchers": {
+          "type": "array",
+          "description": "List of vouchers",
+          "minItems": 0,
+          "items": {
+            "title": "Voucher item",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "campaign"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "campaign": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "total": {
+          "type": "number"
+        }
+      },
+      "example": {
+        "vouchers": [
+          {
+            "code": "3cJCtHny",
+            "campaign": "Referral"
+          }
+        ],
+        "total": 1
+      }
+    },
+    "voucherResponse": {
+      "title": "Voucher item",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "campaign"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "campaign": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Admin",
+      "description": "System management"
+    },
+    {
+      "name": "Carts",
+      "description": "Cart management"
+    },
+    {
+      "name": "Configurations",
+      "description": "Configuration management"
+    },
+    {
+      "name": "Country",
+      "description": "Country information"
+    },
+    {
+      "name": "Inquiry",
+      "description": "Manual inquiries"
+    },
+    {
+      "name": "Models",
+      "description": "Model file management"
+    },
+    {
+      "name": "Offers",
+      "description": "Offer management"
+    },
+    {
+      "name": "Orders",
+      "description": "Order management"
+    },
+    {
+      "name": "Payments",
+      "description": "Payment management"
+    },
+    {
+      "name": "Prices",
+      "description": "Price management"
+    },
+    {
+      "name": "Providers",
+      "description": "Provider information"
+    }
+  ],
+  "swagger": "2.0",
+  "paths": {
+    "/v5/cart": {
+      "post": {
+        "description": "Create cart",
+        "tags": [
+          "Carts"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "cart",
+            "description": "The cart",
+            "schema": {
+              "$ref": "#/definitions/cart"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created cart.",
+            "schema": {
+              "$ref": "#/definitions/cartResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/v5/configuration": {
+      "post": {
+        "description": "Create configuration",
+        "tags": [
+          "Configurations"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "configuration",
+            "description": "The product configuration",
+            "schema": {
+              "$ref": "#/definitions/createConfigurationRequest"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created configuration.",
+            "schema": {
+              "$ref": "#/definitions/createConfigurationResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v5/configuration/{configurationId}": {
+      "get": {
+        "description": "Get configuration by id",
+        "tags": [
+          "Configurations"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "configurationId",
+            "description": "The configuration id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested configuration.",
+            "schema": {
+              "$ref": "#/definitions/configuration"
+            }
+          }
+        }
+      }
+    },
+    "/v5/country": {
+      "get": {
+        "description": "Get list of countries",
+        "tags": [
+          "Country"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of countries, incl. their region and blacklist status",
+            "schema": {
+              "$ref": "#/definitions/country"
+            }
+          }
+        }
+      }
+    },
+    "/v5/health_check": {
+      "get": {
+        "description": "System health check",
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "System up and running.",
+            "schema": {
+              "$ref": "#/definitions/healthCheckResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v5/inquiry": {
+      "post": {
+        "description": "Broadcast manual inquiry to all vendors",
+        "tags": [
+          "Inquiry"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "title",
+            "type": "string",
+            "description": "The inquiry title",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "description",
+            "type": "string",
+            "description": "The inquiry description",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "file",
+            "type": "file",
+            "description": "The attachments",
+            "required": false
+          },
+          {
+            "in": "formData",
+            "name": "vendorIds",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The ids of the vendors to send the inquiry to. Defaults to all vendors if not provided."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created manual inquiry."
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/v5/model": {
+      "post": {
+        "description": "Upload model. For previously unknown models, the initial response will contain neither a geometry nor a rendered `sceneId`. Since model parsing and rendering are done in the background after the initial upload, the updated model information should be retrieved via `GET /model/:modelId`",
+        "tags": [
+          "Models"
+        ],
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "parameters": [
+          {
+            "in": "formData",
+            "name": "file",
+            "type": "file",
+            "description": "The model file",
+            "required": true
+          },
+          {
+            "in": "formData",
+            "name": "unit",
+            "type": "string",
+            "enum": [
+              "mm",
+              "cm",
+              "in"
+            ],
+            "description": "The measuring unit to be used",
+            "default": "mm"
+          },
+          {
+            "in": "formData",
+            "name": "refresh",
+            "type": "boolean",
+            "description": "Force cache refresh of prices",
+            "default": false
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully uploaded model.",
+            "schema": {
+              "$ref": "#/definitions/nonEmptyModelList"
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "Fetch model list for a logged-in user",
+        "tags": [
+          "Models"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of a user's models.",
+            "schema": {
+              "$ref": "#/definitions/modelList"
+            }
+          },
+          "401": {
+            "description": "Not authenticated"
+          }
+        }
+      }
+    },
+    "/v5/model/{modelId}": {
+      "get": {
+        "description": "Get Model by ID. The status code `206` indicates that geometry parsing is still in progress and the GET request should be retried in order to receive complete model information. The status code `200` indicates that geometry parsing has been completed (successfully or not).",
+        "tags": [
+          "Models"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "modelId",
+            "description": "The model id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "refresh",
+            "type": "boolean",
+            "description": "Trigger optional re-rendering of model (if preview is outdated)",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested model after geometry parsing has been completed.",
+            "schema": {
+              "$ref": "#/definitions/model"
+            }
+          },
+          "206": {
+            "description": "The requested model with geometry parsing still in progress.",
+            "schema": {
+              "$ref": "#/definitions/modelWithEmptyGeometry"
+            }
+          },
+          "404": {
+            "description": "Could not find model record"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete Model from account",
+        "tags": [
+          "Models"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "modelId",
+            "description": "The model id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Model successfully flagged as deleted",
+            "schema": {
+              "$ref": "#/definitions/model"
+            }
+          },
+          "401": {
+            "description": "Missing user credentials"
+          },
+          "403": {
+            "description": "Model not assigned to logged-in user"
+          },
+          "404": {
+            "description": "Could not find model record"
+          }
+        }
+      }
+    },
+    "/v5/model/{modelId}/evolve": {
+      "post": {
+        "description": "Create Model from existing model with different properties",
+        "tags": [
+          "Models"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "modelId",
+            "description": "The model id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "modelConfig",
+            "description": "The model evolve request",
+            "schema": {
+              "$ref": "#/definitions/evolveModelRequest"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested model.",
+            "schema": {
+              "$ref": "#/definitions/nonEmptyModelList"
+            }
+          }
+        }
+      }
+    },
+    "/v5/model/{modelId}/download": {
+      "get": {
+        "description": "Get download URL for the model file of the requested model record",
+        "tags": [
+          "Models"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "modelId",
+            "description": "The model id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The download URL for the model file",
+            "schema": {
+              "$ref": "#/definitions/getDownloadUrlResponse"
+            }
+          },
+          "401": {
+            "description": "Missing user credentials"
+          },
+          "403": {
+            "description": "Model not assigned to logged-in user"
+          },
+          "404": {
+            "description": "Could not find model record"
+          }
+        }
+      }
+    },
+    "/v5/offer": {
+      "post": {
+        "description": "Create offer",
+        "tags": [
+          "Offers"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "offer",
+            "description": "The id of the cart and the expires flag",
+            "schema": {
+              "$ref": "#/definitions/createOfferRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created offer.",
+            "schema": {
+              "$ref": "#/definitions/createOfferResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/v5/offer/{offerId}/cart": {
+      "get": {
+        "description": "Return a cart object for the given offerId",
+        "tags": [
+          "Offers"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "offerId",
+            "description": "The id of the offer from which to create the cart",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "query",
+            "name": "currency",
+            "description": "The currency for the cart",
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "GBP",
+              "AUD",
+              "CAD"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The constructed cart for the offer",
+            "schema": {
+              "$ref": "#/definitions/cartResponse"
+            }
+          },
+          "404": {
+            "description": "Unknown offerId"
+          }
+        }
+      }
+    },
+    "/v5/offer/{offerId}/configuration": {
+      "get": {
+        "description": "Return the model configuration for the given offerId",
+        "tags": [
+          "Offers"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "offerId",
+            "description": "The id of the offer",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The model configuration of the offer with the given id",
+            "schema": {
+              "$ref": "#/definitions/configuration"
+            }
+          },
+          "404": {
+            "description": "Unknown offerId"
+          }
+        }
+      }
+    },
+    "/v5/order": {
+      "post": {
+        "description": "Create order from cart",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Order",
+            "description": "The cart and user data to create the order from",
+            "schema": {
+              "$ref": "#/definitions/createOrderFromCart"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created order.",
+            "schema": {
+              "$ref": "#/definitions/orderResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v5/order/manual": {
+      "post": {
+        "description": "Create manual order",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Order",
+            "description": "The order data",
+            "schema": {
+              "$ref": "#/definitions/createManualOrder"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created order.",
+            "schema": {
+              "$ref": "#/definitions/orderResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v5/order/{orderId}/status": {
+      "get": {
+        "description": "Get order status",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The order id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The current status for the order",
+            "schema": {
+              "$ref": "#/definitions/orderStatusResponse"
+            }
+          },
+          "404": {
+            "description": "Could not find order"
+          }
+        }
+      },
+      "patch": {
+        "description": "Update vendor order statuses for the order with the given `orderId`",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The order id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "Order status updates",
+            "description": "The order status updates",
+            "schema": {
+              "$ref": "#/definitions/orderStatusUpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully updated order statuses."
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Could not find order"
+          }
+        }
+      }
+    },
+    "/v5/order/{orderId}": {
+      "patch": {
+        "description": "Update order data",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The order id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "Order update data",
+            "description": "The data to update in the order",
+            "schema": {
+              "$ref": "#/definitions/updateOrderRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully updated order.",
+            "schema": {
+              "$ref": "#/definitions/orderResponse"
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Could not find order"
+          }
+        }
+      }
+    },
+    "/v5/order/{orderId}/configuration": {
+      "get": {
+        "description": "Return the quote configuration for the given orderId",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The id of the order",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The quote configuration of the order with the given id",
+            "schema": {
+              "$ref": "#/definitions/getOrderConfiguration"
+            }
+          },
+          "404": {
+            "description": "Unknown orderId"
+          }
+        }
+      }
+    },
+    "/v5/order/{orderId}/trigger": {
+      "post": {
+        "description": "Trigger order placement for a given vendor of the order with the given `orderId`",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The order id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "Order trigger placement data",
+            "description": "The vendor to trigger placement for",
+            "schema": {
+              "$ref": "#/definitions/triggerOrderPlacementRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully triggered order placement."
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Could not find order"
+          }
+        }
+      }
+    },
+    "/v5/order/{orderId}/additionalCost": {
+      "post": {
+        "description": "Create additional cost for the order with the given `orderId`",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The order id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "Additional cost",
+            "description": "The additional cost",
+            "schema": {
+              "$ref": "#/definitions/additionalCostRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully created additional cost.",
+            "schema": {
+              "$ref": "#/definitions/additionalCostResponse"
+            }
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "401": {
+            "description": "Not authenticated"
+          },
+          "404": {
+            "description": "Could not find order"
+          }
+        }
+      }
+    },
+    "/v5/order/{orderId}/additionalCost/{additionalCostId}": {
+      "get": {
+        "description": "Retrieve additional cost for the order with the given `orderId` and the given `additionalCostId`",
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "orderId",
+            "description": "The order id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "additionalCostId",
+            "description": "The additional cost id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved additional cost.",
+            "schema": {
+              "$ref": "#/definitions/additionalCostResponse"
+            }
+          },
+          "404": {
+            "description": "Could not find order or additional cost"
+          }
+        }
+      }
+    },
+    "/v5/payment/invoice": {
+      "post": {
+        "description": "Create invoice payment",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "invoicePayment",
+            "description": "The payment to create",
+            "schema": {
+              "$ref": "#/definitions/createInvoicePaymentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created payment.",
+            "schema": {
+              "$ref": "#/definitions/createInvoicePaymentResponse"
+            }
+          },
+          "402": {
+            "description": "Invoice payment could not be created."
+          }
+        }
+      }
+    },
+    "/v5/payment/quote": {
+      "post": {
+        "description": "Create quote for order and attach invoice payment",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "quotePayment",
+            "schema": {
+              "$ref": "#/definitions/createQuotePaymentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created quote for order.",
+            "schema": {
+              "$ref": "#/definitions/createQuotePaymentResponse"
+            }
+          },
+          "402": {
+            "description": "Quote could not be created."
+          }
+        }
+      }
+    },
+    "/v5/payment/invoice/{paymentId}": {
+      "patch": {
+        "description": "Execute invoice payment",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "paymentId",
+            "description": "The payment id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "InvoicePaymentVerification",
+            "description": "The verification token",
+            "schema": {
+              "$ref": "#/definitions/executeInvoicePaymentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully executed order.",
+            "schema": {
+              "$ref": "#/definitions/executeInvoicePaymentResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized."
+          },
+          "403": {
+            "description": "Invalid verification token provided."
+          },
+          "404": {
+            "description": "Could not find order or payment."
+          },
+          "500": {
+            "description": "Error while executing invoice payment."
+          }
+        }
+      }
+    },
+    "/v5/payment/paypal": {
+      "post": {
+        "description": "Creates a PayPal payment and returns information about the PayPal order, required for the PayPal checkout flow",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "orderInformation",
+            "description": "The order for which to create a PayPal payment",
+            "schema": {
+              "$ref": "#/definitions/createPayPalPaymentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "PayPal order information.",
+            "schema": {
+              "$ref": "#/definitions/createPayPalPaymentResponse"
+            }
+          },
+          "402": {
+            "description": "PayPal payment could not be created."
+          }
+        }
+      }
+    },
+    "/v5/payment/paypal/{paypalOrderId}/capture": {
+      "get": {
+        "description": "Captures a PayPal payment and executes the respective order",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "paypalOrderId",
+            "description": "The PayPal order ID",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment captured successfully",
+            "schema": {
+              "$ref": "#/definitions/capturePayPalPaymentResponse"
+            }
+          },
+          "402": {
+            "description": "PayPal payment could not be captured."
+          },
+          "404": {
+            "description": "Payment for the given PayPal order ID cannot be found"
+          }
+        }
+      }
+    },
+    "/v5/payment/stripe": {
+      "post": {
+        "description": "Creates a Stripe Checkout session and redirects to the Stripe Checkout page for the created session",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "orderInformation",
+            "description": "The order for which to create a Stripe Checkout session",
+            "schema": {
+              "$ref": "#/definitions/createStripePaymentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Stripe Checkout session",
+            "schema": {
+              "$ref": "#/definitions/createStripePaymentResponse"
+            }
+          },
+          "402": {
+            "description": "Stripe Checkout session could not be created."
+          }
+        }
+      }
+    },
+    "/v5/payment/adyen": {
+      "post": {
+        "description": "Creates an Adyen Checkout session",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "orderInformation",
+            "description": "The order for which to create an Adyen checkout session",
+            "schema": {
+              "$ref": "#/definitions/createAdyenPaymentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Adyen checkout session data",
+            "schema": {
+              "$ref": "#/definitions/createAdyenPaymentResponse"
+            }
+          },
+          "402": {
+            "description": "Adyen Checkout session could not be created."
+          }
+        }
+      }
+    },
+    "/v5/payment/adyen/{adyenSessionId}/async": {
+      "patch": {
+        "description": "Flag the payment for the given Adyen checkout session as `async`",
+        "tags": [
+          "Payments"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "sessionInformation",
+            "schema": {
+              "$ref": "#/definitions/setAdyenPaymentAsyncRequest"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully updated payment"
+          },
+          "403": {
+            "description": "Update of the payment forbidden"
+          },
+          "404": {
+            "description": "Payment not found"
+          }
+        }
+      }
+    },
+    "/v5/price": {
+      "post": {
+        "description": "Create price request",
+        "tags": [
+          "Prices"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "priceRequest",
+            "description": "The price request",
+            "schema": {
+              "$ref": "#/definitions/createPriceRequest"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created price request.",
+            "schema": {
+              "$ref": "#/definitions/createPriceResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/v5/price/{priceId}": {
+      "get": {
+        "description": "Retrieve prices for the given `priceId`. There is a corresponding `ws(s)://<host>/v5/price/:priceId` endpoint that can be used to receive notifications for new prices being available.",
+        "tags": [
+          "Prices"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "priceId",
+            "description": "The price id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested price information",
+            "schema": {
+              "$ref": "#/definitions/getPriceResponse"
+            }
+          },
+          "404": {
+            "description": "Price request not found"
+          }
+        }
+      }
+    },
+    "/v5/price/{priceId}/grouped": {
+      "get": {
+        "description": "Retrieve prices for the given `priceId` grouped by vendor.",
+        "tags": [
+          "Prices"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "priceId",
+            "description": "The price id",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested price information",
+            "schema": {
+              "$ref": "#/definitions/getGroupedPriceResponse"
+            }
+          },
+          "404": {
+            "description": "Price request not found"
+          }
+        }
+      }
+    },
+    "/v5/provider": {
+      "get": {
+        "description": "Get provider information",
+        "tags": [
+          "Providers"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of currently enabled providers.",
+            "schema": {
+              "$ref": "#/definitions/provider"
+            }
+          }
+        }
+      }
+    },
+    "/v5/referral": {
+      "post": {
+        "description": "Generate user referral voucher",
+        "tags": [
+          "Referral"
+        ],
+        "responses": {
+          "200": {
+            "description": "Create or get a referral voucher for the current user.",
+            "schema": {
+              "$ref": "#/definitions/voucherResponse"
+            }
+          }
+        }
+      },
+      "get": {
+        "description": "Get referral vouchers",
+        "tags": [
+          "Referral"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of currently enabled referral vouchers.",
+            "schema": {
+              "$ref": "#/definitions/voucherListResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v5/vat-validation": {
+      "post": {
+        "description": "Validate a VAT ID",
+        "tags": [
+          "VAT ID"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "vatId",
+            "description": "The VAT ID",
+            "schema": {
+              "$ref": "#/definitions/validateVatIdRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "VAT ID validation result.",
+            "schema": {
+              "$ref": "#/definitions/validateVatIdResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    }
+  },
+  "responses": {},
+  "parameters": {},
+  "securityDefinitions": {}
+}

@@ -177,7 +177,7 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
         }}
       >
         <color attach="background" args={['#1a1a1a']} />
-        <ambientLight intensity={0.8} />
+        <ambientLight intensity={1} />
         <directionalLight 
           position={[5, 5, 5]} 
           intensity={1} 

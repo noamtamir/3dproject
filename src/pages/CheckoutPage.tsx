@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Truck, CreditCard } from 'lucide-react';
 
-const COLORS = ['White', 'Black', 'Gray', 'Blue', 'Red'];
+const COLORS = ['Gray', 'White', 'Black', 'Blue', 'Red'];
 const SIZES = ['Small (10cm)', 'Medium (20cm)', 'Large (30cm)'];
+const MATERIALS = ['Resin', 'PLA', 'Aluminum'];
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedColor, setSelectedColor] = useState('Gray');
+  const [selectedMaterial, setSelectedMaterial] = useState('Resin');
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
     address: '',
@@ -44,7 +46,7 @@ export default function CheckoutPage() {
 
         {step === 1 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold">Choose Size & Color</h2>
+            <h2 className="text-2xl font-bold">Choose Size, Color & Material</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Size</label>
@@ -76,8 +78,32 @@ export default function CheckoutPage() {
                           ? 'border-blue-500 bg-blue-500/10'
                           : 'border-gray-700 hover:border-gray-600'
                       }`}
+                      disabled={color !== 'Gray'}
+                      title={color !== 'Gray' ? 'Not available yet' : ''}
+                      style={color !== 'Gray' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                     >
                       {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Material</label>
+                <div className="grid grid-cols-3 gap-4">
+                  {MATERIALS.map((material) => (
+                    <button
+                      key={material}
+                      onClick={() => setSelectedMaterial(material)}
+                      className={`p-4 rounded-lg border ${
+                        selectedMaterial === material
+                          ? 'border-blue-500 bg-blue-500/10'
+                          : 'border-gray-700 hover:border-gray-600'
+                      }`}
+                      disabled={material !== 'Resin'}
+                      title={material !== 'Resin' ? 'Not available yet' : ''}
+                      style={material !== 'Resin' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                    >
+                      {material}
                     </button>
                   ))}
                 </div>
@@ -85,7 +111,7 @@ export default function CheckoutPage() {
             </div>
             <button
               onClick={() => setStep(2)}
-              disabled={!selectedSize || !selectedColor}
+              disabled={!selectedSize || !selectedColor || !selectedMaterial}
               className="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
@@ -157,6 +183,10 @@ export default function CheckoutPage() {
                 <div className="flex justify-between">
                   <span>Color</span>
                   <span>{selectedColor}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Material</span>
+                  <span>{selectedMaterial}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
