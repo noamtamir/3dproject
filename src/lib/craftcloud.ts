@@ -43,19 +43,16 @@ import {
 
 class CraftcloudClient {
   private baseURL: string;
-//   private apiKey: string;
 
-  constructor(baseURL: string, apiKey: string) {
-    this.baseURL = baseURL;
-    // this.apiKey = apiKey;
+  constructor() {
+    this.baseURL = "https://api.craftcloud3d.com/v5";
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       ...options,
       headers: {
-        // 'Authorization': `Bearer ${this.apiKey}`,
-        // 'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
         ...options.headers,
       },
     });
@@ -68,33 +65,33 @@ class CraftcloudClient {
   }
 
   async createCart(cart: Cart): Promise<CartResponse> {
-    return this.request<CartResponse>('/v5/cart', {
+    return this.request<CartResponse>('/cart', {
       method: 'POST',
       body: JSON.stringify(cart),
     });
   }
 
   async createConfiguration(configuration: CreateConfigurationRequest): Promise<CreateConfigurationResponse> {
-    return this.request<CreateConfigurationResponse>('/v5/configuration', {
+    return this.request<CreateConfigurationResponse>('/configuration', {
       method: 'POST',
       body: JSON.stringify(configuration),
     });
   }
 
   async getConfiguration(configurationId: string): Promise<Configuration> {
-    return this.request<Configuration>(`/v5/configuration/${configurationId}`);
+    return this.request<Configuration>(`/configuration/${configurationId}`);
   }
 
   async getCountries(): Promise<Country[]> {
-    return this.request<Country[]>('/v5/country');
+    return this.request<Country[]>('/country');
   }
 
   async healthCheck(): Promise<HealthCheckResponse> {
-    return this.request<HealthCheckResponse>('/v5/health_check');
+    return this.request<HealthCheckResponse>('/health_check');
   }
 
   async createInquiry(inquiry: Inquiry): Promise<void> {
-    return this.request<void>('/v5/inquiry', {
+    return this.request<void>('/inquiry', {
       method: 'POST',
       body: JSON.stringify(inquiry),
     });
@@ -106,11 +103,8 @@ class CraftcloudClient {
     formData.append('unit', unit);
     formData.append('refresh', String(refresh));
 
-    const response = await fetch(`${this.baseURL}/v5/model`, {
+    const response = await fetch(`${this.baseURL}/model`, {
       method: 'POST',
-    //   headers: {
-    //     'Authorization': `Bearer ${this.apiKey}`,
-    //   },
       body: formData,
     });
 
@@ -122,172 +116,172 @@ class CraftcloudClient {
   }
 
   async getModel(modelId: string, refresh: boolean = false): Promise<Model | ModelWithEmptyGeometry> {
-    return this.request<Model | ModelWithEmptyGeometry>(`/v5/model/${modelId}?refresh=${refresh}`);
+    return this.request<Model | ModelWithEmptyGeometry>(`/model/${modelId}?refresh=${refresh}`);
   }
 
   async deleteModel(modelId: string): Promise<Model> {
-    return this.request<Model>(`/v5/model/${modelId}`, {
+    return this.request<Model>(`/model/${modelId}`, {
       method: 'DELETE',
     });
   }
 
   async evolveModel(modelId: string, modelConfig: any): Promise<ModelList> {
-    return this.request<ModelList>(`/v5/model/${modelId}/evolve`, {
+    return this.request<ModelList>(`/model/${modelId}/evolve`, {
       method: 'POST',
       body: JSON.stringify(modelConfig),
     });
   }
 
   async getModelDownloadUrl(modelId: string): Promise<{ url: string }> {
-    return this.request<{ url: string }>(`/v5/model/${modelId}/download`);
+    return this.request<{ url: string }>(`/model/${modelId}/download`);
   }
 
   async createOffer(offer: CreateOfferRequest): Promise<CreateOfferResponse> {
-    return this.request<CreateOfferResponse>('/v5/offer', {
+    return this.request<CreateOfferResponse>('/offer', {
       method: 'POST',
       body: JSON.stringify(offer),
     });
   }
 
   async getOfferCart(offerId: string, currency?: string): Promise<CartResponse> {
-    return this.request<CartResponse>(`/v5/offer/${offerId}/cart?currency=${currency}`);
+    return this.request<CartResponse>(`/offer/${offerId}/cart?currency=${currency}`);
   }
 
   async getOfferConfiguration(offerId: string): Promise<Configuration> {
-    return this.request<Configuration>(`/v5/offer/${offerId}/configuration`);
+    return this.request<Configuration>(`/offer/${offerId}/configuration`);
   }
 
   async createOrderFromCart(order: CreateOrderFromCart): Promise<OrderResponse> {
-    return this.request<OrderResponse>('/v5/order', {
+    return this.request<OrderResponse>('/order', {
       method: 'POST',
       body: JSON.stringify(order),
     });
   }
 
   async createManualOrder(order: any): Promise<OrderResponse> {
-    return this.request<OrderResponse>('/v5/order/manual', {
+    return this.request<OrderResponse>('/order/manual', {
       method: 'POST',
       body: JSON.stringify(order),
     });
   }
 
   async getOrderStatus(orderId: string): Promise<OrderStatusResponse> {
-    return this.request<OrderStatusResponse>(`/v5/order/${orderId}/status`);
+    return this.request<OrderStatusResponse>(`/order/${orderId}/status`);
   }
 
   async updateOrderStatus(orderId: string, statusUpdates: OrderStatusUpdateRequest): Promise<void> {
-    return this.request<void>(`/v5/order/${orderId}/status`, {
+    return this.request<void>(`/order/${orderId}/status`, {
       method: 'PATCH',
       body: JSON.stringify(statusUpdates),
     });
   }
 
   async updateOrder(orderId: string, orderUpdate: any): Promise<OrderResponse> {
-    return this.request<OrderResponse>(`/v5/order/${orderId}`, {
+    return this.request<OrderResponse>(`/order/${orderId}`, {
       method: 'PATCH',
       body: JSON.stringify(orderUpdate),
     });
   }
 
   async getOrderConfiguration(orderId: string): Promise<Configuration> {
-    return this.request<Configuration>(`/v5/order/${orderId}/configuration`);
+    return this.request<Configuration>(`/order/${orderId}/configuration`);
   }
 
   async triggerOrderPlacement(orderId: string, triggerData: any): Promise<void> {
-    return this.request<void>(`/v5/order/${orderId}/trigger`, {
+    return this.request<void>(`/order/${orderId}/trigger`, {
       method: 'POST',
       body: JSON.stringify(triggerData),
     });
   }
 
   async createAdditionalCost(orderId: string, additionalCost: AdditionalCostRequest): Promise<AdditionalCostResponse> {
-    return this.request<AdditionalCostResponse>(`/v5/order/${orderId}/additionalCost`, {
+    return this.request<AdditionalCostResponse>(`/order/${orderId}/additionalCost`, {
       method: 'POST',
       body: JSON.stringify(additionalCost),
     });
   }
 
   async getAdditionalCost(orderId: string, additionalCostId: string): Promise<AdditionalCostResponse> {
-    return this.request<AdditionalCostResponse>(`/v5/order/${orderId}/additionalCost/${additionalCostId}`);
+    return this.request<AdditionalCostResponse>(`/order/${orderId}/additionalCost/${additionalCostId}`);
   }
 
   async createInvoicePayment(payment: CreateInvoicePaymentRequest): Promise<CreateInvoicePaymentResponse> {
-    return this.request<CreateInvoicePaymentResponse>('/v5/payment/invoice', {
+    return this.request<CreateInvoicePaymentResponse>('/payment/invoice', {
       method: 'POST',
       body: JSON.stringify(payment),
     });
   }
 
   async executeInvoicePayment(paymentId: string, verification: ExecuteInvoicePaymentRequest): Promise<ExecuteInvoicePaymentResponse> {
-    return this.request<ExecuteInvoicePaymentResponse>(`/v5/payment/invoice/${paymentId}`, {
+    return this.request<ExecuteInvoicePaymentResponse>(`/payment/invoice/${paymentId}`, {
       method: 'PATCH',
       body: JSON.stringify(verification),
     });
   }
 
   async createPayPalPayment(payment: CreatePayPalPaymentRequest): Promise<CreatePayPalPaymentResponse> {
-    return this.request<CreatePayPalPaymentResponse>('/v5/payment/paypal', {
+    return this.request<CreatePayPalPaymentResponse>('/payment/paypal', {
       method: 'POST',
       body: JSON.stringify(payment),
     });
   }
 
   async capturePayPalPayment(paypalOrderId: string): Promise<CapturePayPalPaymentResponse> {
-    return this.request<CapturePayPalPaymentResponse>(`/v5/payment/paypal/${paypalOrderId}/capture`);
+    return this.request<CapturePayPalPaymentResponse>(`/payment/paypal/${paypalOrderId}/capture`);
   }
 
   async createStripePayment(payment: CreateStripePaymentRequest): Promise<CreateStripePaymentResponse> {
-    return this.request<CreateStripePaymentResponse>('/v5/payment/stripe', {
+    return this.request<CreateStripePaymentResponse>('/payment/stripe', {
       method: 'POST',
       body: JSON.stringify(payment),
     });
   }
 
   async createAdyenPayment(payment: CreateAdyenPaymentRequest): Promise<CreateAdyenPaymentResponse> {
-    return this.request<CreateAdyenPaymentResponse>('/v5/payment/adyen', {
+    return this.request<CreateAdyenPaymentResponse>('/payment/adyen', {
       method: 'POST',
       body: JSON.stringify(payment),
     });
   }
 
   async setAdyenPaymentAsync(adyenSessionId: string, sessionInformation: SetAdyenPaymentAsyncRequest): Promise<void> {
-    return this.request<void>(`/v5/payment/adyen/${adyenSessionId}/async`, {
+    return this.request<void>(`/payment/adyen/${adyenSessionId}/async`, {
       method: 'PATCH',
       body: JSON.stringify(sessionInformation),
     });
   }
 
   async createPriceRequest(priceRequest: CreatePriceRequest): Promise<CreatePriceResponse> {
-    return this.request<CreatePriceResponse>('/v5/price', {
+    return this.request<CreatePriceResponse>('/price', {
       method: 'POST',
       body: JSON.stringify(priceRequest),
     });
   }
 
   async getPrice(priceId: string): Promise<GetPriceResponse> {
-    return this.request<GetPriceResponse>(`/v5/price/${priceId}`);
+    return this.request<GetPriceResponse>(`/price/${priceId}`);
   }
 
   async getGroupedPrice(priceId: string): Promise<GetGroupedPriceResponse> {
-    return this.request<GetGroupedPriceResponse>(`/v5/price/${priceId}/grouped`);
+    return this.request<GetGroupedPriceResponse>(`/price/${priceId}/grouped`);
   }
 
   async getProviders(): Promise<Provider[]> {
-    return this.request<Provider[]>('/v5/provider');
+    return this.request<Provider[]>('/provider');
   }
 
   async generateReferralVoucher(): Promise<VoucherResponse> {
-    return this.request<VoucherResponse>('/v5/referral', {
+    return this.request<VoucherResponse>('/referral', {
       method: 'POST',
     });
   }
 
   async getReferralVouchers(): Promise<VoucherListResponse> {
-    return this.request<VoucherListResponse>('/v5/referral');
+    return this.request<VoucherListResponse>('/referral');
   }
 
   async validateVatId(vatId: string): Promise<ValidateVatIdResponse> {
-    return this.request<ValidateVatIdResponse>('/v5/vat-validation', {
+    return this.request<ValidateVatIdResponse>('/vat-validation', {
       method: 'POST',
       body: JSON.stringify({ vatId }),
     });

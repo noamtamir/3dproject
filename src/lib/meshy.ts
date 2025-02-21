@@ -4,6 +4,7 @@ interface MeshyResponse {
   progress?: number;
   model_urls?: {
     glb: string;
+    obj: string;
   };
   error?: string;
 }
@@ -26,7 +27,7 @@ export class MeshyClient {
     this.progressCallback = callback;
   }
 
-  async generateModel(prompt: string): Promise<string> {
+  async generateModel(prompt: string): Promise<{ glbUrl: string; objUrl: string }> {
     if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
       throw new Error('Valid prompt is required');
     }
@@ -85,8 +86,8 @@ export class MeshyClient {
           this.progressCallback(previewTask.progress);
         }
 
-        if (previewTask?.status === 'SUCCEEDED' && previewTask.model_urls?.glb) {
-          return previewTask.model_urls.glb;
+        if (previewTask?.status === 'SUCCEEDED' && previewTask.model_urls?.glb && previewTask.model_urls?.obj) {
+          return { glbUrl: previewTask.model_urls.glb, objUrl: previewTask.model_urls.obj };
         } else if (previewTask?.status === 'FAILED') {
           throw new Error(previewTask.error || 'Preview generation failed');
         }

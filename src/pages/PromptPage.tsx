@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Wand2, RotateCcw, AlertCircle, Loader2, Link, CreditCard, Calculator } from 'lucide-react';
 import ModelViewer from '../components/ModelViewer';
 import { MeshyClient } from '../lib/meshy';
+import CraftcloudClient from '../lib/craftcloud';
 
 const COLORS = ['Gray', 'White', 'Black', 'Blue', 'Red'];
 const SIZES = ['Small (10cm)', 'Medium (20cm)', 'Large (30cm)'];
@@ -13,7 +14,7 @@ export default function PromptPage() {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [modelUrl, setModelUrl] = useState<string | null>(null);
+  const [modelUrls, setModelUrls] = useState<{ glbUrl: string; objUrl: string } | null>(null);
   const [meshyClient, setMeshyClient] = useState<MeshyClient | null>(null);
   const [generationProgress, setGenerationProgress] = useState<number>(0);
   const [manualUrl, setManualUrl] = useState('');
@@ -52,10 +53,10 @@ export default function PromptPage() {
   }, []);
 
   useEffect(() => {
-    if (modelUrl && configRef.current) {
+    if (modelUrls && configRef.current) {
       configRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [modelUrl]);
+  }, [modelUrls]);
 
   const handleGenerate = async () => {
     if (!meshyClient) {
@@ -73,8 +74,8 @@ export default function PromptPage() {
         setGenerationProgress(progress);
       });
       
-      const url = await meshyClient.generateModel(prompt);
-      setModelUrl(url);
+      const urls = await meshyClient.generateModel(prompt);
+      setModelUrls(urls);
     } catch (err) {
       console.error('Generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate model');
@@ -87,13 +88,13 @@ export default function PromptPage() {
   const handleManualUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (manualUrl.trim()) {
-      setModelUrl(manualUrl.trim());
+      setModelUrls({ glbUrl: manualUrl.trim(), objUrl: manualUrl.trim() });
       setHasQuote(false);
     }
   };
 
   const handleLoadLocalModel = () => {
-    setModelUrl('/model.glb');
+    setModelUrls({ glbUrl: '/model.glb', objUrl: '/model.obj' });
     setHasQuote(false);
   };
 
@@ -103,10 +104,43 @@ export default function PromptPage() {
     }
 
     setIsGettingQuote(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsGettingQuote(false);
-    setHasQuote(true);
+    setError(null);
+
+    try {
+      const craftcloudClient = new CraftcloudClient();
+
+      // Upload model
+      const modelFile = await fetch(modelUrls!.objUrl).then(res => res.blob()).then(blob => new File([blob], 'model.obj'));
+      const uploadResponse = await craftcloudClient.uploadModel({ file: modelFile });
+      const modelId = uploadResponse[0].modelId;
+
+      // Create price request
+      const priceRequest = {
+        currency: 'EUR',
+        countryCode: 'ES',
+        models: [{ modelId, quantity: 1, scale: 1 }],
+      };
+      const priceResponse = await craftcloudClient.createPriceRequest(priceRequest);
+      const priceId = priceResponse.priceId;
+
+      // Connect to WebSocket and get price updates
+      const ws = new WebSocket(`https://api.craftcloud3d.com/v5/price/${priceId}`);
+      ws.onmessage = (event) => {
+        console.log('Price update:', event.data);
+      };
+
+      ws.onclose = async () => {
+        const finalPrice = await craftcloudClient.getPrice(priceId);
+        console.log('Final price:', finalPrice);
+        setHasQuote(true);
+      };
+
+    } catch (err) {
+      console.error('Quote error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to get quote');
+    } finally {
+      setIsGettingQuote(false);
+    }
   };
 
   const isConfigurationComplete = selectedSize && selectedColor && selectedMaterial && shippingInfo.country;
@@ -184,10 +218,10 @@ export default function PromptPage() {
           </div>
 
           {/* Model Viewer and Configuration */}
-          {modelUrl && (
+          {modelUrls && (
             <div className="flex gap-6">
               <div className="flex-1 aspect-square bg-gray-900 rounded-lg border border-gray-800 relative">
-                <ModelViewer modelUrl={modelUrl || undefined} />
+                <ModelViewer modelUrl={modelUrls.glbUrl} />
                 
                 {/* Loading Overlay */}
                 {isGenerating && (
@@ -215,11 +249,11 @@ export default function PromptPage() {
                 <div className="absolute bottom-4 right-4">
                   <button
                     onClick={() => {
-                      setModelUrl(null);
+                      setModelUrls(null);
                       setHasQuote(false);
                     }}
                     className="p-2 bg-gray-800 rounded-full hover:bg-gray-700"
-                    disabled={!modelUrl || isGenerating}
+                    disabled={!modelUrls || isGenerating}
                   >
                     <RotateCcw className="w-5 h-5" />
                   </button>
