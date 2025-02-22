@@ -306,7 +306,7 @@ class CraftcloudClient {
     modelUrl,
     countryCode,
     materialConfigIds = ['8c77dbf9-21a8-5342-87c1-fd685ec5fdd8'], // Default Resin material
-    scale = 15,
+    scale = 1,
     quantity = 1
   }: GetQuoteOptions): Promise<{
     cheapestOption: Option | null;

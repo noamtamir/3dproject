@@ -38,7 +38,6 @@ export default function PromptPage() {
   const navigate = useNavigate();
 
   // Checkout state
-  const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('Gray');
   const [selectedMaterial, setSelectedMaterial] = useState('Resin');
   const [shippingInfo, setShippingInfo] = useState({
@@ -51,6 +50,9 @@ export default function PromptPage() {
 
   // Add new state for scale
   const [scale, setScale] = useState(1);
+
+  // Add state to track if manual input is active
+  const [isManualScaleInput, setIsManualScaleInput] = useState(false);
 
   const configRef = useRef<HTMLDivElement>(null);
 
@@ -132,7 +134,7 @@ export default function PromptPage() {
   };
 
   const handleGetQuote = async () => {
-    if (!selectedSize || !selectedColor || !selectedMaterial || !shippingInfo.country) {
+    if (!selectedColor || !selectedMaterial || !shippingInfo.country) {
       return;
     }
 
@@ -149,7 +151,8 @@ export default function PromptPage() {
 
       const { cheapestOption, fastestOption } = await craftcloudClient.getQuote({
         modelUrl: modelUrls!.objUrl,
-        countryCode: selectedCountry.code
+        countryCode: selectedCountry.code,
+        scale: scale
       });
 
       setCheapestOption(cheapestOption);
@@ -164,12 +167,20 @@ export default function PromptPage() {
     }
   };
 
-  const isConfigurationComplete = selectedSize && selectedColor && selectedMaterial && shippingInfo.country;
+  const isConfigurationComplete = selectedColor && selectedMaterial && shippingInfo.country;
   const isShippingComplete = Object.entries(shippingInfo).every(([key, value]) => key === 'country' || hasQuote ? value : true);
   const canProceedToPayment = isConfigurationComplete && isShippingComplete && hasQuote && selectedOption;
 
   const handlePayment = async () => {
     navigate('/success');
+  };
+
+  // Add handler for manual scale input
+  const handleManualScaleInput = (value: string) => {
+    const num = parseFloat(value);
+    if (!isNaN(num) && num >= 0.01 && num <= 100) {
+      setScale(num);
+    }
   };
 
   return (
@@ -292,16 +303,40 @@ export default function PromptPage() {
                       <div className="space-y-2">
                         <input
                           type="range"
-                          min="0.01"
-                          max="100"
+                          min={-2}
+                          max={2}
                           step="0.01"
-                          value={scale}
-                          onChange={(e) => setScale(parseFloat(e.target.value))}
+                          value={Math.log10(scale)}
+                          onChange={(e) => setScale(Math.pow(10, parseFloat(e.target.value)))}
                           className="w-full accent-blue-500 bg-gray-700"
                         />
                         <div className="flex justify-between text-xs text-gray-400">
                           <span>×0.01</span>
-                          <span>×{scale.toFixed(2)}</span>
+                          {isManualScaleInput ? (
+                            <input
+                              type="number"
+                              value={scale}
+                              onChange={(e) => handleManualScaleInput(e.target.value)}
+                              onBlur={() => setIsManualScaleInput(false)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  setIsManualScaleInput(false);
+                                }
+                              }}
+                              className="w-16 px-1 py-0.5 bg-gray-800 border border-gray-600 rounded text-center"
+                              min="0.01"
+                              max="100"
+                              step="0.01"
+                              autoFocus
+                            />
+                          ) : (
+                            <button
+                              onClick={() => setIsManualScaleInput(true)}
+                              className="hover:text-gray-300"
+                            >
+                              ×{scale.toFixed(2)}
+                            </button>
+                          )}
                           <span>×100</span>
                         </div>
                       </div>
@@ -478,10 +513,6 @@ export default function PromptPage() {
                   <div className="bg-gray-900 p-4 rounded-lg border border-gray-800 animate-fade-in">
                     <h2 className="text-lg font-bold mb-4">Order Summary</h2>
                     <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Size</span>
-                        <span>{selectedSize}</span>
-                      </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Color</span>
                         <span>{selectedColor}</span>
