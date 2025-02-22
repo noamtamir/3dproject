@@ -386,6 +386,72 @@ export default function PromptPage() {
                   </div>
                 </div>
 
+                {/* Printing & Shipping Options (shown after getting quote) */}
+                {hasQuote && (
+                  <div className="bg-gray-900 p-4 rounded-lg border border-gray-800 animate-fade-in">
+                    <h2 className="text-lg font-bold mb-4">Printing & Shipping Options</h2>
+                    <div className="space-y-4">
+                      {/* Cheapest Option */}
+                      <button
+                        onClick={() => setSelectedOption('cheapest')}
+                        className={`w-full p-4 rounded-lg border text-left transition-colors ${
+                          selectedOption === 'cheapest'
+                            ? 'border-blue-500 bg-blue-500/10'
+                            : 'border-gray-700 hover:border-gray-600'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-bold">Cheapest Option</span>
+                          <span className="text-sm bg-green-500/20 text-green-400 px-2 py-1 rounded">
+                            Best Value
+                          </span>
+                        </div>
+                        {cheapestOption && (
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Total Cost</span>
+                              <span>{cheapestOption.totalCost.toFixed(2)} EUR</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Delivery Time</span>
+                              <span>{cheapestOption.totalTime} days</span>
+                            </div>
+                          </div>
+                        )}
+                      </button>
+
+                      {/* Fastest Option */}
+                      <button
+                        onClick={() => setSelectedOption('fastest')}
+                        className={`w-full p-4 rounded-lg border text-left transition-colors ${
+                          selectedOption === 'fastest'
+                            ? 'border-blue-500 bg-blue-500/10'
+                            : 'border-gray-700 hover:border-gray-600'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-bold">Fastest Option</span>
+                          <span className="text-sm bg-blue-500/20 text-blue-400 px-2 py-1 rounded">
+                            Express
+                          </span>
+                        </div>
+                        {fastestOption && (
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Total Cost</span>
+                              <span>{fastestOption.totalCost.toFixed(2)} EUR</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-400">Delivery Time</span>
+                              <span>{fastestOption.totalTime} days</span>
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Order Summary (shown after getting quote) */}
                 {hasQuote && (
                   <div className="bg-gray-900 p-4 rounded-lg border border-gray-800 animate-fade-in">
@@ -407,47 +473,19 @@ export default function PromptPage() {
                         <span className="text-gray-400">Shipping to</span>
                         <span>{shippingInfo.country}</span>
                       </div>
-                      <div className="pt-2 border-t border-gray-700">
-                        <div className="flex justify-between font-bold">
-                          <span>Total</span>
-                          <span>$149.99</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      <h3 className="text-md font-bold mb-2">Cheapest Option</h3>
-                      {cheapestOption && (
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Vendor</span>
-                            <span>{cheapestOption.quote.vendorId}</span>
+                      {selectedOption && (
+                        <div className="pt-2 border-t border-gray-700">
+                          <div className="flex justify-between font-bold">
+                            <span>Total</span>
+                            <span>
+                              {(selectedOption === 'cheapest' ? cheapestOption?.totalCost : fastestOption?.totalCost)?.toFixed(2)} EUR
+                            </span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Total Cost</span>
-                            <span>{cheapestOption.totalCost.toFixed(2)} EUR</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Total Time</span>
-                            <span>{cheapestOption.totalTime} days</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <div className="mt-4">
-                      <h3 className="text-md font-bold mb-2">Fastest Option</h3>
-                      {fastestOption && (
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Vendor</span>
-                            <span>{fastestOption.quote.vendorId}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Total Cost</span>
-                            <span>{fastestOption.totalCost.toFixed(2)} EUR</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Total Time</span>
-                            <span>{fastestOption.totalTime} days</span>
+                          <div className="flex justify-between text-sm text-gray-400 mt-1">
+                            <span>Estimated Delivery</span>
+                            <span>
+                              {(selectedOption === 'cheapest' ? cheapestOption?.totalTime : fastestOption?.totalTime)} days
+                            </span>
                           </div>
                         </div>
                       )}
