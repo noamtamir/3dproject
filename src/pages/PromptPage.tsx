@@ -172,11 +172,28 @@ export default function PromptPage() {
   };
 
   const isConfigurationComplete = selectedColor && selectedMaterial && shippingInfo.country;
-  const isShippingComplete = Object.entries(shippingInfo).every(([key, value]) => key === 'country' || hasQuote ? value : true);
-  const canProceedToPayment = isConfigurationComplete && isShippingComplete && hasQuote && selectedOption;
+  const canProceedToPayment = isConfigurationComplete && hasQuote && selectedOption;
 
   const handlePayment = async () => {
-    navigate('/success');
+    try {
+      const craftcloudClient = new CraftcloudClient();
+      const selectedQuoteOption = selectedOption === 'cheapest' ? cheapestOption : fastestOption;
+
+      if (!selectedQuoteOption) {
+        throw new Error('No quote option selected');
+      }
+
+      const cartUrl = await craftcloudClient.createCartAndOffer(
+        selectedQuoteOption,
+        selectedCurrency
+      );
+
+      // Open in new tab
+      window.open(cartUrl, '_blank');
+    } catch (err) {
+      console.error('Payment error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to proceed to payment');
+    }
   };
 
   // Add handler for manual scale input
@@ -585,46 +602,8 @@ export default function PromptPage() {
                           </div>
                         </div>
                       )}
-                    </div>
-                  </div>
-                )}
 
-                {/* Full Shipping Information (shown after quote) */}
-                {hasQuote && (
-                  <div className="bg-gray-900 p-4 rounded-lg border border-gray-800 animate-fade-in">
-                    <h2 className="text-lg font-bold mb-4">Shipping Details</h2>
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        placeholder="Full Name"
-                        value={shippingInfo.name}
-                        onChange={(e) => setShippingInfo({ ...shippingInfo, name: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Address"
-                        value={shippingInfo.address}
-                        onChange={(e) => setShippingInfo({ ...shippingInfo, address: e.target.value })}
-                        className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm"
-                      />
-                      <div className="grid grid-cols-2 gap-3">
-                        <input
-                          type="text"
-                          placeholder="City"
-                          value={shippingInfo.city}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, city: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm"
-                        />
-                        <input
-                          type="text"
-                          placeholder="ZIP Code"
-                          value={shippingInfo.zip}
-                          onChange={(e) => setShippingInfo({ ...shippingInfo, zip: e.target.value })}
-                          className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm"
-                        />
-                      </div>
-
+                      {/* Payment Button */}
                       <button
                         onClick={handlePayment}
                         disabled={!canProceedToPayment}
@@ -633,12 +612,6 @@ export default function PromptPage() {
                         <CreditCard className="w-4 h-4" />
                         <span>Proceed to Payment</span>
                       </button>
-
-                      {!canProceedToPayment && (
-                        <p className="mt-2 text-xs text-gray-400 text-center">
-                          Please complete all shipping details to proceed
-                        </p>
-                      )}
                     </div>
                   </div>
                 )}

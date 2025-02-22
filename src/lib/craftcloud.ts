@@ -39,6 +39,8 @@ import {
   VoucherListResponse,
   ValidateVatIdResponse,
   UploadModelRequest,
+  Quote,
+  Shipping,
 } from './craftcloud-types';
 
 export type Option = {
@@ -55,6 +57,19 @@ export type GetQuoteOptions = {
   scale?: number;
   quantity?: number;
   currency?: 'EUR' | 'USD';
+};
+
+export type CreateCartRequest = {
+  quotes: {
+    id: string;
+    types?: string[];
+    note?: string;
+  }[];
+  shippingIds: string[];
+  currency: string;
+  note?: string;
+  customerReference?: string;
+  voucherCode?: string;
 };
 
 class CraftcloudClient {
@@ -374,6 +389,30 @@ class CraftcloudClient {
     });
 
     return { cheapestOption, fastestOption };
+  }
+
+  async createCartAndOffer(option: Option, currency: string): Promise<string> {
+    // Create cart first
+    const cartRequest: CreateCartRequest = {
+      quotes: [{
+        id: option.quote.quoteId
+      }],
+      shippingIds: [option.shipping.shippingId],
+      currency: currency
+    };
+
+    const cartResponse = await this.createCart(cartRequest);
+
+    // Create offer with cart ID
+    const offerRequest: CreateOfferRequest = {
+      cartId: cartResponse.cartId,
+      expires: true
+    };
+
+    const offerResponse = await this.createOffer(offerRequest);
+
+    // Return the cart URL
+    return `https://craftcloud3d.com/cart?cartId=${cartResponse.cartId}`;
   }
 }
 
