@@ -72,6 +72,13 @@ export type CreateCartRequest = {
   voucherCode?: string;
 };
 
+// Add a helper type for the price polling
+type PollPriceResult = {
+  success: boolean;
+  data?: GetPriceResponse;
+  error?: string;
+};
+
 class CraftcloudClient {
   private baseURL: string;
 
@@ -318,6 +325,45 @@ class CraftcloudClient {
     });
   }
 
+  private async pollPrice(priceId: string, maxAttempts = 5): Promise<PollPriceResult> {
+    let attempts = 0;
+    const timeout = 5000; // 5 seconds timeout for each attempt
+    
+    while (attempts < maxAttempts) {
+      try {
+        // Create a timeout promise
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Request timeout')), timeout);
+        });
+
+        // Race between the actual request and the timeout
+        const priceData = await Promise.race([
+          this.getPrice(priceId),
+          timeoutPromise
+        ]);
+
+        if (priceData.allComplete) {
+          return { success: true, data: priceData };
+        }
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (err) {
+        console.error('Price polling error:', err);
+        // If it's a timeout, continue to next attempt
+        if (err instanceof Error && err.message === 'Request timeout') {
+          attempts++;
+          continue;
+        }
+        return { 
+          success: false, 
+          error: err instanceof Error ? err.message : 'Failed to get price data'
+        };
+      }
+    }
+    
+    return { success: false, error: 'Price calculation timed out' };
+  }
+
   async getQuote({
     modelUrl,
     countryCode,
@@ -329,66 +375,79 @@ class CraftcloudClient {
     cheapestOption: Option | null;
     fastestOption: Option | null;
   }> {
-    // Upload model
-    const modelFile = await fetch(modelUrl).then(res => res.blob()).then(blob => new File([blob], 'model.obj'));
-    const uploadResponse = await this.uploadModel({ file: modelFile });
-    const modelId = uploadResponse[0].modelId;
+    let retries = 3;
+    let lastError: string | null = null;
 
-    // Create price request
-    const priceRequest: CreatePriceRequest = {
-      currency,
-      countryCode,
-      models: [{ modelId, quantity, scale }],
-      materialConfigIds
-    };
+    while (retries > 0) {
+      try {
+        // Upload model
+        const modelFile = await fetch(modelUrl)
+          .then(res => res.blob())
+          .then(blob => new File([blob], 'model.obj'));
+        const uploadResponse = await this.uploadModel({ file: modelFile });
+        const modelId = uploadResponse[0].modelId;
 
-    const priceResponse = await this.createPriceRequest(priceRequest);
-    const priceId = priceResponse.priceId;
+        // Create price request
+        const priceRequest: CreatePriceRequest = {
+          currency,
+          countryCode,
+          models: [{ modelId, quantity, scale }],
+          materialConfigIds
+        };
 
-    // Poll for price updates
-    let priceData;
-    let attempts = 0;
-    const maxAttempts = 30; // 30s maximum waiting time
+        const priceResponse = await this.createPriceRequest(priceRequest);
+        
+        // Poll for price with timeout
+        const pollResult = await this.pollPrice(priceResponse.priceId);
+        
+        if (!pollResult.success) {
+          lastError = pollResult.error || 'Failed to get price data';
+          retries--;
+          continue;
+        }
 
-    while (attempts < maxAttempts) {
-      priceData = await this.getPrice(priceId);
-      if (priceData.allComplete) {
-        break;
+        const priceData = pollResult.data!;
+
+        // Pair up quotes and shippings by vendorId
+        const pairs = priceData.quotes.flatMap((quote: Quote) => 
+          priceData.shippings
+            .filter((shipping: Shipping) => shipping.vendorId === quote.vendorId)
+            .map((shipping: Shipping) => ({ quote, shipping }))
+        );
+
+        // Find the cheapest and fastest options
+        let cheapestOption: Option | null = null;
+        let fastestOption: Option | null = null;
+
+        pairs.forEach(({ quote, shipping }) => {
+          const productionPrice = Math.max(quote.priceInclVat, priceData.minimumProductionPrice[quote.vendorId]?.priceInclVat || 0);
+          const totalCost = productionPrice + shipping.priceInclVat;
+          const totalTime = quote.productionTimeSlow + parseInt(shipping.deliveryTime.split('-')[1]);
+
+          if (!cheapestOption || totalCost < cheapestOption.totalCost) {
+            cheapestOption = { quote, shipping, totalCost, totalTime };
+          }
+
+          if (!fastestOption || totalTime < fastestOption.totalTime) {
+            fastestOption = { quote, shipping, totalCost, totalTime };
+          }
+        });
+
+        return { cheapestOption, fastestOption };
+
+      } catch (err) {
+        console.error('Quote error:', err);
+        lastError = err instanceof Error ? err.message : 'Failed to get quote';
+        retries--;
+        
+        if (retries > 0) {
+          // Wait before retrying
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
       }
-      attempts++;
-      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    if (!priceData?.allComplete) {
-      throw new Error('Price calculation timed out');
-    }
-
-    // Pair up quotes and shippings by vendorId
-    const pairs = priceData.quotes.flatMap((quote: Quote) => 
-      priceData.shippings
-        .filter((shipping: Shipping) => shipping.vendorId === quote.vendorId)
-        .map((shipping: Shipping) => ({ quote, shipping }))
-    );
-
-    // Find the cheapest and fastest options
-    let cheapestOption: Option | null = null;
-    let fastestOption: Option | null = null;
-
-    pairs.forEach(({ quote, shipping }) => {
-      const productionPrice = Math.max(quote.priceInclVat, priceData.minimumProductionPrice[quote.vendorId]?.priceInclVat || 0);
-      const totalCost = productionPrice + shipping.priceInclVat;
-      const totalTime = quote.productionTimeSlow + parseInt(shipping.deliveryTime.split('-')[1]);
-
-      if (!cheapestOption || totalCost < cheapestOption.totalCost) {
-        cheapestOption = { quote, shipping, totalCost, totalTime };
-      }
-
-      if (!fastestOption || totalTime < fastestOption.totalTime) {
-        fastestOption = { quote, shipping, totalCost, totalTime };
-      }
-    });
-
-    return { cheapestOption, fastestOption };
+    throw new Error(lastError || 'Failed to get quote after multiple attempts');
   }
 
   async createCartAndOffer(option: Option, currency: string): Promise<string> {
