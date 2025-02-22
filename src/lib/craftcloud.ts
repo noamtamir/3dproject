@@ -54,6 +54,7 @@ export type GetQuoteOptions = {
   materialConfigIds?: string[];
   scale?: number;
   quantity?: number;
+  currency?: 'EUR' | 'USD';
 };
 
 class CraftcloudClient {
@@ -307,7 +308,8 @@ class CraftcloudClient {
     countryCode,
     materialConfigIds = ['8c77dbf9-21a8-5342-87c1-fd685ec5fdd8'], // Default Resin material
     scale = 1,
-    quantity = 1
+    quantity = 1,
+    currency = 'EUR'
   }: GetQuoteOptions): Promise<{
     cheapestOption: Option | null;
     fastestOption: Option | null;
@@ -319,7 +321,7 @@ class CraftcloudClient {
 
     // Create price request
     const priceRequest: CreatePriceRequest = {
-      currency: 'EUR', // TODO: make this dynamic
+      currency,
       countryCode,
       models: [{ modelId, quantity, scale }],
       materialConfigIds

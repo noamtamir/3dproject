@@ -54,6 +54,9 @@ export default function PromptPage() {
   // Add state to track if manual input is active
   const [isManualScaleInput, setIsManualScaleInput] = useState(false);
 
+  // Add new state for currency
+  const [selectedCurrency, setSelectedCurrency] = useState<'EUR' | 'USD'>('EUR');
+
   const configRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -152,7 +155,8 @@ export default function PromptPage() {
       const { cheapestOption, fastestOption } = await craftcloudClient.getQuote({
         modelUrl: modelUrls!.objUrl,
         countryCode: selectedCountry.code,
-        scale: scale
+        scale: scale,
+        currency: selectedCurrency
       });
 
       setCheapestOption(cheapestOption);
@@ -343,25 +347,34 @@ export default function PromptPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">Color</label>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-5 gap-2">
                         {COLORS.map((color) => {
                           const isDisabled = color !== 'Gray';
+                          const bgColor = {
+                            Gray: 'bg-gray-500',
+                            White: 'bg-white',
+                            Black: 'bg-black',
+                            Blue: 'bg-blue-500',
+                            Red: 'bg-red-500'
+                          }[color];
+                          const textColor = color === 'White' ? 'text-gray-900' : 'text-white';
+
                           return (
                             <button
                               key={color}
                               onClick={() => setSelectedColor(color)}
-                              className={`relative p-2 rounded-lg border text-sm ${
+                              className={`relative p-1.5 rounded-lg border text-sm ${textColor} ${
                                 selectedColor === color
-                                  ? 'border-blue-500 bg-blue-500/10'
+                                  ? 'border-blue-500 ring-2 ring-blue-500/50'
                                   : isDisabled 
                                     ? 'border-gray-700 opacity-50 cursor-not-allowed'
                                     : 'border-gray-700 hover:border-gray-600'
-                              } group`}
+                              } group ${bgColor}`}
                               disabled={isDisabled}
                             >
                               {color}
                               {isDisabled && (
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-xs rounded 
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded 
                                   invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity">
                                   Not supported yet
                                 </div>
@@ -373,14 +386,14 @@ export default function PromptPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">Material</label>
-                      <div className="grid grid-cols-1 gap-2">
+                      <div className="grid grid-cols-3 gap-2">
                         {MATERIALS.map((material) => {
                           const isDisabled = material !== 'Resin';
                           return (
                             <button
                               key={material}
                               onClick={() => setSelectedMaterial(material)}
-                              className={`relative p-2 rounded-lg border text-sm ${
+                              className={`relative p-1.5 rounded-lg border text-sm ${
                                 selectedMaterial === material
                                   ? 'border-blue-500 bg-blue-500/10'
                                   : isDisabled 
@@ -406,8 +419,9 @@ export default function PromptPage() {
 
                 {/* Initial Shipping Info (Country) */}
                 <div className="bg-gray-900 p-4 rounded-lg border border-gray-800">
-                  <h2 className="text-lg font-bold mb-4">Shipping Country</h2>
+                  <h2 className="text-lg font-bold mb-4">Shipping & Currency</h2>
                   <div className="space-y-4">
+                    {/* Country Selection */}
                     <select
                       value={shippingInfo.country}
                       onChange={(e) => {
@@ -421,6 +435,36 @@ export default function PromptPage() {
                         <option key={country.code} value={country.name}>{country.name}</option>
                       ))}
                     </select>
+
+                    {/* Currency Selection */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setSelectedCurrency('EUR');
+                          setHasQuote(false);
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm transition-colors ${
+                          selectedCurrency === 'EUR'
+                            ? 'bg-blue-500/20 border border-blue-500'
+                            : 'bg-gray-800/50 border border-gray-700 hover:border-gray-600'
+                        }`}
+                      >
+                        EUR (€)
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedCurrency('USD');
+                          setHasQuote(false);
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-lg text-sm transition-colors ${
+                          selectedCurrency === 'USD'
+                            ? 'bg-blue-500/20 border border-blue-500'
+                            : 'bg-gray-800/50 border border-gray-700 hover:border-gray-600'
+                        }`}
+                      >
+                        USD ($)
+                      </button>
+                    </div>
 
                     <button
                       onClick={handleGetQuote}
@@ -466,7 +510,7 @@ export default function PromptPage() {
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-400">Total Cost</span>
-                              <span>{cheapestOption.totalCost.toFixed(2)} EUR</span>
+                              <span>{cheapestOption.totalCost.toFixed(2)} {selectedCurrency}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-400">Delivery Time</span>
@@ -495,7 +539,7 @@ export default function PromptPage() {
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-400">Total Cost</span>
-                              <span>{fastestOption.totalCost.toFixed(2)} EUR</span>
+                              <span>{fastestOption.totalCost.toFixed(2)} {selectedCurrency}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-400">Delivery Time</span>
@@ -530,7 +574,7 @@ export default function PromptPage() {
                           <div className="flex justify-between font-bold">
                             <span>Total</span>
                             <span>
-                              {(selectedOption === 'cheapest' ? cheapestOption?.totalCost : fastestOption?.totalCost)?.toFixed(2)} EUR
+                              {(selectedOption === 'cheapest' ? cheapestOption?.totalCost : fastestOption?.totalCost)?.toFixed(2)} {selectedCurrency}
                             </span>
                           </div>
                           <div className="flex justify-between text-sm text-gray-400 mt-1">
