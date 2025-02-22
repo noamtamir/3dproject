@@ -4,11 +4,23 @@ import { Wand2, RotateCcw, AlertCircle, Loader2, Link, CreditCard, Calculator } 
 import ModelViewer from '../components/ModelViewer';
 import { MeshyClient } from '../lib/meshy';
 import CraftcloudClient from '../lib/craftcloud';
+import { Quote, Shipping } from '../lib/craftcloud-types';
 
 const COLORS = ['Gray', 'White', 'Black', 'Blue', 'Red'];
 const SIZES = ['Small (10cm)', 'Medium (20cm)', 'Large (30cm)'];
 const MATERIALS = ['Resin', 'PLA', 'Aluminum'];
-const COUNTRIES = ['United States', 'Canada', 'United Kingdom', 'Germany', 'France', 'Australia'];
+
+interface Option {
+  quote: Quote;
+  shipping: Shipping;
+  totalCost: number;
+  totalTime: number;
+}
+
+interface Country {
+  code: string;
+  name: string;
+}
 
 export default function PromptPage() {
   const [prompt, setPrompt] = useState('');
@@ -20,6 +32,10 @@ export default function PromptPage() {
   const [manualUrl, setManualUrl] = useState('');
   const [isGettingQuote, setIsGettingQuote] = useState(false);
   const [hasQuote, setHasQuote] = useState(false);
+  const [cheapestOption, setCheapestOption] = useState<Option | null>(null);
+  const [fastestOption, setFastestOption] = useState<Option | null>(null);
+  const [selectedOption, setSelectedOption] = useState<'cheapest' | 'fastest' | null>(null);
+  const [countries, setCountries] = useState<Country[]>([]);
   const navigate = useNavigate();
 
   // Checkout state
@@ -57,6 +73,21 @@ export default function PromptPage() {
       configRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, [modelUrls]);
+
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const craftcloudClient = new CraftcloudClient();
+        const countryList = await craftcloudClient.getCountries();
+        setCountries(countryList);
+      } catch (err) {
+        console.error('Failed to fetch countries:', err);
+        setError('Failed to fetch countries. Please try again later.');
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   const handleGenerate = async () => {
     if (!meshyClient) {
@@ -115,25 +146,72 @@ export default function PromptPage() {
       const modelId = uploadResponse[0].modelId;
 
       // Create price request
+      const selectedCountry = countries.find(country => country.name === shippingInfo.country);
+      if (!selectedCountry) {
+        throw new Error('Selected country not found');
+      }
+
       const priceRequest = {
-        currency: 'EUR',
-        countryCode: 'ES',
-        models: [{ modelId, quantity: 1, scale: 1 }],
+        currency: 'EUR', // TODO: make this dynamic
+        countryCode: selectedCountry.code,
+        models: [{ modelId, quantity: 1, scale: 15 }], // TODO: make quantity and scale dynamic
+        materialConfigIds: [
+            '8c77dbf9-21a8-5342-87c1-fd685ec5fdd8' // Standard Resin materialConfigId, hard coded for now and the only available
+            // TODO: make this dynamic
+        ]
       };
       const priceResponse = await craftcloudClient.createPriceRequest(priceRequest);
       const priceId = priceResponse.priceId;
 
-      // Connect to WebSocket and get price updates
-      const ws = new WebSocket(`https://api.craftcloud3d.com/v5/price/${priceId}`);
-      ws.onmessage = (event) => {
-        console.log('Price update:', event.data);
-      };
+      // Poll for price updates
+      let priceData;
+      let attempts = 0;
+      const maxAttempts = 30; // 30s maximum waiting time
 
-      ws.onclose = async () => {
-        const finalPrice = await craftcloudClient.getPrice(priceId);
-        console.log('Final price:', finalPrice);
-        setHasQuote(true);
-      };
+      while (attempts < maxAttempts) {
+        priceData = await craftcloudClient.getPrice(priceId);
+        if (priceData.allComplete) {
+          console.log('Final price:', priceData);
+          setHasQuote(true);
+          break;
+        }
+        attempts++;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      if (!priceData?.allComplete) {
+        throw new Error('Price calculation timed out');
+      }
+
+      // Pair up quotes and shippings by vendorId
+      const pairs = priceData.quotes.flatMap((quote: Quote) => 
+        priceData.shippings
+          .filter((shipping: Shipping) => shipping.vendorId === quote.vendorId)
+          .map((shipping: Shipping) => ({ quote, shipping }))
+      );
+
+      // Find the cheapest and fastest options
+      let cheapest: Option | null = null;
+      let fastest: Option | null = null;
+
+      pairs.forEach(({ quote, shipping }) => {
+        const productionPrice = Math.max(quote.priceInclVat, priceData.minimumProductionPrice[quote.vendorId]?.priceInclVat || 0);
+        const totalCost = productionPrice + shipping.priceInclVat;
+        const totalTime = quote.productionTimeSlow + parseInt(shipping.deliveryTime.split('-')[1]);
+
+        if (!cheapest || totalCost < cheapest.totalCost) {
+          cheapest = { quote, shipping, totalCost, totalTime };
+        }
+
+        if (!fastest || totalTime < fastest.totalTime) {
+          fastest = { quote, shipping, totalCost, totalTime };
+        }
+      });
+
+      setCheapestOption(cheapest);
+      setFastestOption(fastest);
+      console.log('Cheapest option:', cheapest);
+      console.log('Fastest option:', fastest);
 
     } catch (err) {
       console.error('Quote error:', err);
@@ -145,7 +223,7 @@ export default function PromptPage() {
 
   const isConfigurationComplete = selectedSize && selectedColor && selectedMaterial && shippingInfo.country;
   const isShippingComplete = Object.entries(shippingInfo).every(([key, value]) => key === 'country' || hasQuote ? value : true);
-  const canProceedToPayment = isConfigurationComplete && isShippingComplete && hasQuote;
+  const canProceedToPayment = isConfigurationComplete && isShippingComplete && hasQuote && selectedOption;
 
   const handlePayment = async () => {
     navigate('/success');
@@ -342,8 +420,8 @@ export default function PromptPage() {
                       className="w-full px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-sm"
                     >
                       <option value="">Select a country</option>
-                      {COUNTRIES.map(country => (
-                        <option key={country} value={country}>{country}</option>
+                      {countries.map(country => (
+                        <option key={country.code} value={country.name}>{country.name}</option>
                       ))}
                     </select>
 
@@ -394,6 +472,44 @@ export default function PromptPage() {
                           <span>$149.99</span>
                         </div>
                       </div>
+                    </div>
+                    <div className="mt-4">
+                      <h3 className="text-md font-bold mb-2">Cheapest Option</h3>
+                      {cheapestOption && (
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Vendor</span>
+                            <span>{cheapestOption.quote.vendorId}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Total Cost</span>
+                            <span>{cheapestOption.totalCost.toFixed(2)} EUR</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Total Time</span>
+                            <span>{cheapestOption.totalTime} days</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="mt-4">
+                      <h3 className="text-md font-bold mb-2">Fastest Option</h3>
+                      {fastestOption && (
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Vendor</span>
+                            <span>{fastestOption.quote.vendorId}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Total Cost</span>
+                            <span>{fastestOption.totalCost.toFixed(2)} EUR</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">Total Time</span>
+                            <span>{fastestOption.totalTime} days</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

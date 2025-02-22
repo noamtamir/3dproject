@@ -275,7 +275,7 @@ export type ValidateVatIdResponse = {
   valid: boolean;
 };
 
-type Quote = {
+export type Quote = {
   quoteId: string;
   vendorId: string;
   modelId: string;
@@ -289,7 +289,7 @@ type Quote = {
   scale: number;
 };
 
-type Shipping = {
+export type Shipping = {
   shippingId: string;
   vendorId: string;
   name: string;
