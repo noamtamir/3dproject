@@ -3,63 +3,79 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-interface ModelViewerProps {
-  modelUrl?: string;
+interface ModelDimensions {
+  width: number;
+  height: number;
+  depth: number;
+  volume: number;
+  scale: number;
 }
 
-function Model({ url }: { url: string }) {
+interface ModelViewerProps {
+  modelUrl?: string;
+  onDimensionsCalculated?: (dimensions: ModelDimensions) => void;
+  scale?: number;
+}
+
+function Model({ url, onDimensionsCalculated, scale = 1 }: { 
+  url: string; 
+  onDimensionsCalculated?: (dimensions: ModelDimensions) => void;
+  scale?: number;
+}) {
   const [error, setError] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [baseSize, setBaseSize] = useState<THREE.Vector3 | null>(null);
   
-  // Load the model with error handling
-  const { scene } = useGLTF(url, true, (error) => {
-    console.error('Error loading model:', error);
-    setError(error.message);
-  });
+  const { scene } = useGLTF(url, true) as any;
   
   useEffect(() => {
     if (!scene) return;
 
     try {
-      // Center and scale the model
+      // Center and scale the model - this stays constant
       const box = new THREE.Box3().setFromObject(scene);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 2 / maxDim;
+      const baseScale = 2 / maxDim;
       
       scene.position.copy(center.multiplyScalar(-1));
-      scene.scale.setScalar(scale);
+      scene.scale.setScalar(baseScale); // Don't apply user scale to the model
+
+      // Store base size for dimension calculations
+      setBaseSize(size);
+
+      // Calculate scaled dimensions
+      const dimensions: ModelDimensions = {
+        width: (size.x / 10) * scale,
+        height: (size.y / 10) * scale,
+        depth: (size.z / 10) * scale,
+        volume: (size.x * size.y * size.z * Math.pow(scale, 3)) / 1000,
+        scale
+      };
       
-      // Mark as successfully loaded
+      onDimensionsCalculated?.(dimensions);
       setIsLoaded(true);
     } catch (err) {
       console.error('Error processing model:', err);
       setError(err instanceof Error ? err.message : 'Failed to process model');
     }
+  }, [scene, onDimensionsCalculated]);
 
-    // Cleanup function
-    return () => {
-      try {
-        scene.traverse((object) => {
-          if (object instanceof THREE.Mesh) {
-            if (object.geometry) {
-              object.geometry.dispose();
-            }
-            if (object.material) {
-              if (Array.isArray(object.material)) {
-                object.material.forEach(material => material.dispose());
-              } else {
-                object.material.dispose();
-              }
-            }
-          }
-        });
-      } catch (err) {
-        console.error('Error cleaning up model:', err);
-      }
+  // Update dimensions when scale changes
+  useEffect(() => {
+    if (!baseSize) return;
+
+    const dimensions: ModelDimensions = {
+      width: (baseSize.x / 10) * scale,
+      height: (baseSize.y / 10) * scale,
+      depth: (baseSize.z / 10) * scale,
+      volume: (baseSize.x * baseSize.y * baseSize.z * Math.pow(scale, 3)) / 1000,
+      scale
     };
-  }, [scene]);
+    
+    onDimensionsCalculated?.(dimensions);
+  }, [scale, baseSize, onDimensionsCalculated]);
 
   // Handle loading errors
   if (error) {
@@ -138,8 +154,8 @@ class ModelErrorBoundary extends React.Component<
   }
 }
 
-export default function ModelViewer({ modelUrl }: ModelViewerProps) {
-  // Reset error boundary when URL changes
+export default function ModelViewer({ modelUrl, scale = 1 }: ModelViewerProps) {
+  const [dimensions, setDimensions] = useState<ModelDimensions | null>(null);
   const [key, setKey] = useState(0);
   
   useEffect(() => {
@@ -167,7 +183,7 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
   }, [modelUrl]);
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full relative">
       <Canvas
         camera={{ position: [0, 0, 4], fov: 50 }}
         gl={{ 
@@ -197,10 +213,31 @@ export default function ModelViewer({ modelUrl }: ModelViewerProps) {
         />
         <ModelErrorBoundary key={key}>
           <Suspense fallback={<LoadingSpinner />}>
-            {modelUrl ? <Model url={modelUrl} /> : <PlaceholderBox />}
+            {modelUrl ? (
+              <Model 
+                url={modelUrl} 
+                onDimensionsCalculated={setDimensions}
+                scale={scale}
+              />
+            ) : (
+              <PlaceholderBox />
+            )}
           </Suspense>
         </ModelErrorBoundary>
       </Canvas>
+
+      {/* Dimensions Overlay - moved to top right */}
+      {dimensions && (
+        <div className="absolute top-4 right-4 bg-gray-900/80 backdrop-blur-sm p-3 rounded-lg text-sm space-y-1">
+          <div className="font-medium text-gray-300">Model Dimensions</div>
+          <div className="text-gray-400">
+            {dimensions.width.toFixed(2)} × {dimensions.height.toFixed(1)} × {dimensions.depth.toFixed(1)} cm
+          </div>
+          <div className="text-gray-400">
+            Volume: {dimensions.volume.toFixed(3)} cm³
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -7,7 +7,6 @@ import CraftcloudClient from '../lib/craftcloud';
 import { Quote, Shipping } from '../lib/craftcloud-types';
 
 const COLORS = ['Gray', 'White', 'Black', 'Blue', 'Red'];
-const SIZES = ['Small (10cm)', 'Medium (20cm)', 'Large (30cm)'];
 const MATERIALS = ['Resin', 'PLA', 'Aluminum'];
 
 interface Option {
@@ -49,6 +48,9 @@ export default function PromptPage() {
     city: '',
     zip: ''
   });
+
+  // Add new state for scale
+  const [scale, setScale] = useState(1);
 
   const configRef = useRef<HTMLDivElement>(null);
 
@@ -240,7 +242,7 @@ export default function PromptPage() {
           {modelUrls && (
             <div className="flex gap-6">
               <div className="flex-1 aspect-square bg-gray-900 rounded-lg border border-gray-800 relative">
-                <ModelViewer modelUrl={modelUrls.glbUrl} />
+                <ModelViewer modelUrl={modelUrls.glbUrl} scale={scale} />
                 
                 {/* Loading Overlay */}
                 {isGenerating && (
@@ -287,20 +289,21 @@ export default function PromptPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">Size</label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {SIZES.map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => setSelectedSize(size)}
-                            className={`p-2 rounded-lg border text-sm ${
-                              selectedSize === size
-                                ? 'border-blue-500 bg-blue-500/10'
-                                : 'border-gray-700 hover:border-gray-600'
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        ))}
+                      <div className="space-y-2">
+                        <input
+                          type="range"
+                          min="0.01"
+                          max="100"
+                          step="0.01"
+                          value={scale}
+                          onChange={(e) => setScale(parseFloat(e.target.value))}
+                          className="w-full accent-blue-500 bg-gray-700"
+                        />
+                        <div className="flex justify-between text-xs text-gray-400">
+                          <span>×0.01</span>
+                          <span>×{scale.toFixed(2)}</span>
+                          <span>×100</span>
+                        </div>
                       </div>
                     </div>
                     <div>
