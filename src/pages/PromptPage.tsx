@@ -306,43 +306,61 @@ export default function PromptPage() {
                     <div>
                       <label className="block text-sm font-medium mb-2">Color</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {COLORS.map((color) => (
-                          <button
-                            key={color}
-                            onClick={() => setSelectedColor(color)}
-                            className={`p-2 rounded-lg border text-sm ${
-                              selectedColor === color
-                                ? 'border-blue-500 bg-blue-500/10'
-                                : 'border-gray-700 hover:border-gray-600'
-                            }`}
-                            disabled={color !== 'Gray'}
-                            title={color !== 'Gray' ? 'Not available yet' : ''}
-                            style={color !== 'Gray' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                          >
-                            {color}
-                          </button>
-                        ))}
+                        {COLORS.map((color) => {
+                          const isDisabled = color !== 'Gray';
+                          return (
+                            <button
+                              key={color}
+                              onClick={() => setSelectedColor(color)}
+                              className={`relative p-2 rounded-lg border text-sm ${
+                                selectedColor === color
+                                  ? 'border-blue-500 bg-blue-500/10'
+                                  : isDisabled 
+                                    ? 'border-gray-700 opacity-50 cursor-not-allowed'
+                                    : 'border-gray-700 hover:border-gray-600'
+                              } group`}
+                              disabled={isDisabled}
+                            >
+                              {color}
+                              {isDisabled && (
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-xs rounded 
+                                  invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity">
+                                  Not supported yet
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium mb-2">Material</label>
                       <div className="grid grid-cols-1 gap-2">
-                        {MATERIALS.map((material) => (
-                          <button
-                            key={material}
-                            onClick={() => setSelectedMaterial(material)}
-                            className={`p-2 rounded-lg border text-sm ${
-                              selectedMaterial === material
-                                ? 'border-blue-500 bg-blue-500/10'
-                                : 'border-gray-700 hover:border-gray-600'
-                            }`}
-                            disabled={material !== 'Resin'}
-                            title={material !== 'Resin' ? 'Not available yet' : ''}
-                            style={material !== 'Resin' ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                          >
-                            {material}
-                          </button>
-                        ))}
+                        {MATERIALS.map((material) => {
+                          const isDisabled = material !== 'Resin';
+                          return (
+                            <button
+                              key={material}
+                              onClick={() => setSelectedMaterial(material)}
+                              className={`relative p-2 rounded-lg border text-sm ${
+                                selectedMaterial === material
+                                  ? 'border-blue-500 bg-blue-500/10'
+                                  : isDisabled 
+                                    ? 'border-gray-700 opacity-50 cursor-not-allowed'
+                                    : 'border-gray-700 hover:border-gray-600'
+                              } group`}
+                              disabled={isDisabled}
+                            >
+                              {material}
+                              {isDisabled && (
+                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-xs rounded 
+                                  invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity">
+                                  Not supported yet
+                                </div>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
