@@ -139,79 +139,20 @@ export default function PromptPage() {
 
     try {
       const craftcloudClient = new CraftcloudClient();
-
-      // Upload model
-      const modelFile = await fetch(modelUrls!.objUrl).then(res => res.blob()).then(blob => new File([blob], 'model.obj'));
-      const uploadResponse = await craftcloudClient.uploadModel({ file: modelFile });
-      const modelId = uploadResponse[0].modelId;
-
-      // Create price request
       const selectedCountry = countries.find(country => country.name === shippingInfo.country);
+      
       if (!selectedCountry) {
         throw new Error('Selected country not found');
       }
 
-      const priceRequest = {
-        currency: 'EUR', // TODO: make this dynamic
-        countryCode: selectedCountry.code,
-        models: [{ modelId, quantity: 1, scale: 15 }], // TODO: make quantity and scale dynamic
-        materialConfigIds: [
-            '8c77dbf9-21a8-5342-87c1-fd685ec5fdd8' // Standard Resin materialConfigId, hard coded for now and the only available
-            // TODO: make this dynamic
-        ]
-      };
-      const priceResponse = await craftcloudClient.createPriceRequest(priceRequest);
-      const priceId = priceResponse.priceId;
-
-      // Poll for price updates
-      let priceData;
-      let attempts = 0;
-      const maxAttempts = 30; // 30s maximum waiting time
-
-      while (attempts < maxAttempts) {
-        priceData = await craftcloudClient.getPrice(priceId);
-        if (priceData.allComplete) {
-          console.log('Final price:', priceData);
-          setHasQuote(true);
-          break;
-        }
-        attempts++;
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      if (!priceData?.allComplete) {
-        throw new Error('Price calculation timed out');
-      }
-
-      // Pair up quotes and shippings by vendorId
-      const pairs = priceData.quotes.flatMap((quote: Quote) => 
-        priceData.shippings
-          .filter((shipping: Shipping) => shipping.vendorId === quote.vendorId)
-          .map((shipping: Shipping) => ({ quote, shipping }))
-      );
-
-      // Find the cheapest and fastest options
-      let cheapest: Option | null = null;
-      let fastest: Option | null = null;
-
-      pairs.forEach(({ quote, shipping }) => {
-        const productionPrice = Math.max(quote.priceInclVat, priceData.minimumProductionPrice[quote.vendorId]?.priceInclVat || 0);
-        const totalCost = productionPrice + shipping.priceInclVat;
-        const totalTime = quote.productionTimeSlow + parseInt(shipping.deliveryTime.split('-')[1]);
-
-        if (!cheapest || totalCost < cheapest.totalCost) {
-          cheapest = { quote, shipping, totalCost, totalTime };
-        }
-
-        if (!fastest || totalTime < fastest.totalTime) {
-          fastest = { quote, shipping, totalCost, totalTime };
-        }
+      const { cheapestOption, fastestOption } = await craftcloudClient.getQuote({
+        modelUrl: modelUrls!.objUrl,
+        countryCode: selectedCountry.code
       });
 
-      setCheapestOption(cheapest);
-      setFastestOption(fastest);
-      console.log('Cheapest option:', cheapest);
-      console.log('Fastest option:', fastest);
+      setCheapestOption(cheapestOption);
+      setFastestOption(fastestOption);
+      setHasQuote(true);
 
     } catch (err) {
       console.error('Quote error:', err);
