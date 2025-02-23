@@ -14,6 +14,7 @@ type ProgressCallback = (progress: number) => void;
 export class MeshyClient {
   private apiKey: string;
   private baseUrl = 'https://api.meshy.ai/openapi/v2';
+  private proxyUrl = 'https://proxy-production-ea8e.up.railway.app/proxy';
   private progressCallback?: ProgressCallback;
 
   constructor(apiKey: string) {
@@ -27,43 +28,58 @@ export class MeshyClient {
     this.progressCallback = callback;
   }
 
+  private async proxyRequest(path: string, method: string, headers?: Record<string, string>, body?: object) {
+    // Encode the path for safety
+    const encodedPath = encodeURIComponent(path);
+    const response = await fetch(`${this.proxyUrl}/${encodedPath}`, {
+      method,
+      headers: {
+        'X-API-KEY': import.meta.env.VITE_PROXY_API_KEY,
+        ...headers
+      },
+      ...(body && { body: JSON.stringify(body) })
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Proxy request failed';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || `Proxy Error: ${response.status} - ${response.statusText}`;
+      } catch {
+        errorMessage = `Proxy Error: ${response.status} - ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  }
+
   async generateModel(prompt: string): Promise<{ glbUrl: string; objUrl: string }> {
     if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
       throw new Error('Valid prompt is required');
     }
 
     try {
-      // Generate preview model
-      const previewResponse = await fetch(`${this.baseUrl}/text-to-3d`, {
-        method: 'POST',
-        headers: {
+      // Generate preview model through proxy
+      const previewData: MeshyResponse = await this.proxyRequest(
+        `${this.baseUrl}/text-to-3d`,
+        'POST',
+        {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.apiKey}`,
         },
-        body: JSON.stringify({
+        {
           mode: 'preview',
           prompt: prompt,
           negative_prompt: 'low quality, low resolution, low poly, ugly',
           art_style: 'realistic',
           should_remesh: true,
-        }),
-      });
-
-      if (!previewResponse.ok) {
-        let errorMessage = 'API request failed';
-        try {
-          const errorData = await previewResponse.json();
-          errorMessage = errorData.message || `API Error: ${previewResponse.status} - ${previewResponse.statusText}`;
-        } catch {
-          errorMessage = `API Error: ${previewResponse.status} - ${previewResponse.statusText}`;
         }
-        throw new Error(errorMessage);
-      }
+      );
 
-      const previewData: MeshyResponse = await previewResponse.json();
       const previewTaskId = previewData.result;
 
-      // Poll preview status
+      // Poll preview status directly
       let previewTask: MeshyResponse | null = null;
       let attempts = 0;
       const maxAttempts = 30; // 2.5 minutes maximum waiting time
@@ -87,7 +103,10 @@ export class MeshyClient {
         }
 
         if (previewTask?.status === 'SUCCEEDED' && previewTask.model_urls?.glb && previewTask.model_urls?.obj) {
-          return { glbUrl: previewTask.model_urls.glb, objUrl: previewTask.model_urls.obj };
+          // Encode the URLs and prepend the proxy path
+          const glbUrl = `${this.proxyUrl}/${encodeURIComponent(previewTask.model_urls.glb)}`;
+          const objUrl = `${this.proxyUrl}/${encodeURIComponent(previewTask.model_urls.obj)}`;
+          return { glbUrl, objUrl };
         } else if (previewTask?.status === 'FAILED') {
           throw new Error(previewTask.error || 'Preview generation failed');
         }
