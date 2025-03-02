@@ -4,6 +4,7 @@ import { Wand2 } from 'lucide-react';
 import PromptPage from './pages/PromptPage';
 import CheckoutPage from './pages/CheckoutPage';
 import SuccessPage from './pages/SuccessPage';
+import TrackingPage from './pages/TrackingPage';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<PromptPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/success" element={<SuccessPage />} />
+            <Route path="/track/:trackingNumber" element={<TrackingPage />} />
           </Routes>
         </main>
       </div>

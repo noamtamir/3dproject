@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SuccessPage from './SuccessPage';
 import { Wand2, RotateCcw, AlertCircle, Loader2, Link, CreditCard, Calculator } from 'lucide-react';
 import ModelViewer from '../components/ModelViewer';
 import { MeshyClient } from '../lib/meshy';
@@ -8,6 +9,9 @@ import { Quote, Shipping } from '../lib/craftcloud-types';
 
 const COLORS = ['Gray', 'White', 'Black', 'Blue', 'Red'];
 const MATERIALS = ['Resin', 'PLA', 'Aluminum'];
+
+// Feature flag for loading from URL
+const ENABLE_LOAD_FROM_URL = import.meta.env.VITE_ENABLE_LOAD_FROM_URL === 'true';
 
 interface Option {
   quote: Quote;
@@ -183,13 +187,18 @@ export default function PromptPage() {
         throw new Error('No quote option selected');
       }
 
-      const cartUrl = await craftcloudClient.createCartAndOffer(
-        selectedQuoteOption,
-        selectedCurrency
-      );
-
-      // Open in new tab
-      window.open(cartUrl, '_blank');
+      // Navigate to the success page with order details
+      navigate('/success', {
+        state: {
+          orderId: 'ORD-2024-1234', // Example order ID
+          trackingNumber: 'TRK-9876543210', // Example tracking number
+          estimatedDelivery: selectedOption === 'cheapest' ? cheapestOption?.totalTime : fastestOption?.totalTime, // Estimated delivery time
+          color: selectedColor,
+          material: selectedMaterial,
+          shippingCountry: shippingInfo.country,
+          totalCost: selectedOption === 'cheapest' ? cheapestOption?.totalCost : fastestOption?.totalCost,
+        },
+      });
     } catch (err) {
       console.error('Payment error:', err);
       setError(err instanceof Error ? err.message : 'Failed to proceed to payment');
@@ -209,30 +218,32 @@ export default function PromptPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col space-y-8">
           {/* Manual URL Input */}
-          <div className="w-full max-w-3xl mx-auto">
-            <form onSubmit={handleManualUrlSubmit} className="flex space-x-2">
-              <input
-                type="text"
-                value={manualUrl}
-                onChange={(e) => setManualUrl(e.target.value)}
-                placeholder="Enter GLB URL for testing..."
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                type="submit"
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center space-x-2"
-              >
-                <Link className="w-4 h-4" />
-                <span>Load URL</span>
-              </button>
-              <button
-                onClick={handleLoadLocalModel}
-                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center space-x-2"
-              >
-                <span>Load Local Model</span>
-              </button>
-            </form>
-          </div>
+          {ENABLE_LOAD_FROM_URL && (
+            <div className="w-full max-w-3xl mx-auto">
+              <form onSubmit={handleManualUrlSubmit} className="flex space-x-2">
+                <input
+                  type="text"
+                  value={manualUrl}
+                  onChange={(e) => setManualUrl(e.target.value)}
+                  placeholder="Enter GLB URL for testing..."
+                  className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center space-x-2"
+                >
+                  <Link className="w-4 h-4" />
+                  <span>Load URL</span>
+                </button>
+                <button
+                  onClick={handleLoadLocalModel}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center space-x-2"
+                >
+                  <span>Load Local Model</span>
+                </button>
+              </form>
+            </div>
+          )}
 
           <div className="w-full max-w-3xl mx-auto">
             <div className="relative">
@@ -270,50 +281,50 @@ export default function PromptPage() {
             )}
           </div>
 
-          {/* Model Viewer and Configuration */}
-          {modelUrls && (
-            <div className="flex gap-6">
-              <div className="flex-1 aspect-square bg-gray-900 rounded-lg border border-gray-800 relative">
-                <ModelViewer modelUrl={modelUrls.glbUrl} scale={scale} />
-                
-                {/* Loading Overlay */}
-                {isGenerating && (
-                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center">
-                    <div className="flex flex-col items-center space-y-4">
-                      <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-                      <div className="text-lg font-medium">Generating your model...</div>
-                      {generationProgress > 0 && (
-                        <div className="w-64">
-                          <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-blue-500 transition-all duration-300 ease-out"
-                              style={{ width: `${generationProgress}%` }}
-                            />
-                          </div>
-                          <div className="text-sm text-gray-400 text-center mt-2">
-                            {Math.round(generationProgress)}% complete
-                          </div>
+          {/* Model Viewer - Always visible */}
+          <div className="flex gap-6">
+            <div className="flex-1 h-[80vh] w-3/5 bg-gray-900 rounded-lg border border-gray-800 relative">
+              <ModelViewer modelUrl={modelUrls ? modelUrls.glbUrl : ''} scale={scale} />
+              
+              {/* Loading Overlay */}
+              {isGenerating && (
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-center space-y-4">
+                    <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                    <div className="text-lg font-medium">Generating your model...</div>
+                    {generationProgress > 0 && (
+                      <div className="w-64">
+                        <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-blue-500 transition-all duration-300 ease-out"
+                            style={{ width: `${generationProgress}%` }}
+                          />
                         </div>
-                      )}
-                    </div>
+                        <div className="text-sm text-gray-400 text-center mt-2">
+                          {Math.round(generationProgress)}% complete
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-                
-                <div className="absolute bottom-4 right-4">
-                  <button
-                    onClick={() => {
-                      setModelUrls(null);
-                      setHasQuote(false);
-                    }}
-                    className="p-2 bg-gray-800 rounded-full hover:bg-gray-700"
-                    disabled={!modelUrls || isGenerating}
-                  >
-                    <RotateCcw className="w-5 h-5" />
-                  </button>
                 </div>
+              )}
+              
+              <div className="absolute bottom-4 right-4">
+                <button
+                  onClick={() => {
+                    setModelUrls(null);
+                    setHasQuote(false);
+                  }}
+                  className="p-2 bg-gray-800 rounded-full hover:bg-gray-700"
+                  disabled={!modelUrls || isGenerating}
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
               </div>
+            </div>
 
-              {/* Configuration Panel */}
+            {/* Configuration Panel - Only visible after generating the model */}
+            {modelUrls && (
               <div ref={configRef} className="w-80 space-y-6 animate-fade-in">
                 {/* Model Configuration */}
                 <div className="bg-gray-900 p-4 rounded-lg border border-gray-800">
@@ -616,8 +627,8 @@ export default function PromptPage() {
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

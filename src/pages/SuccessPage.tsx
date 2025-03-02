@@ -1,8 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { CheckCircle, Truck, Package } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { CheckCircle, Truck } from 'lucide-react';
 
-export default function SuccessPage() {
+const SuccessPage: React.FC = () => {
+  const location = useLocation();
+  const { orderId, trackingNumber, estimatedDelivery, color, material, shippingCountry, totalCost } = location.state || {};
+
   return (
     <div className="pt-20 min-h-screen">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -21,28 +24,48 @@ export default function SuccessPage() {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Order ID</span>
-                <span className="font-mono">#ORD-2024-1234</span>
+                <span className="font-mono">{orderId}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Tracking Number</span>
-                <span className="font-mono">TRK-9876543210</span>
+                <span className="font-mono">{trackingNumber}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Estimated Delivery</span>
-                <span>March 15, 2024</span>
+                <span>{estimatedDelivery} days</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Color</span>
+                <span>{color}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Material</span>
+                <span>{material}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400">Shipping to</span>
+                <span>{shippingCountry}</span>
               </div>
               <div className="pt-4 border-t border-gray-800">
-                <div className="flex items-center space-x-2 text-blue-500">
-                  <Truck className="w-5 h-5" />
-                  <a href="#" className="hover:underline">Track Your Order</a>
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>{totalCost?.toFixed(2)} EUR</span>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Track Order Button */}
+          <Link
+            to={`/track/${trackingNumber}`} // Assuming you have a tracking page set up
+            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg m-3"
+          >
+            Track Your Order
+          </Link>
+
           <Link
             to="/"
-            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg"
+            className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg m-3"
           >
             Create Another
           </Link>
@@ -50,4 +73,6 @@ export default function SuccessPage() {
       </div>
     </div>
   );
-}
+};
+
+export default SuccessPage;

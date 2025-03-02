@@ -11,7 +11,7 @@ export default function Navbar() {
             <Printer3d className="h-8 w-8 text-blue-500" />
             <span className="font-bold text-xl">AI Print Lab</span>
           </Link>
-          <div className="flex items-center space-x-4">
+          {/* <div className="flex items-center space-x-4">
             <Link
               to="/"
               className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
@@ -24,7 +24,7 @@ export default function Navbar() {
             >
               Gallery
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
     </nav>
